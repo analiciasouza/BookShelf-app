@@ -15,12 +15,12 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
 const MOCK_BOOKS = [
-  { id: '1', title: 'She who became the sun', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '2', title: 'This is how you lose the Time War', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
-  { id: '3', title: 'She who became the sun', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '4', title: 'This is how you lose the Time War', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
-  { id: '5', title: 'She who became the sun', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '6', title: 'This is how you lose the Time War', price: 24.99, cover: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
+  { id: '1', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
+  { id: '2', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
+  { id: '3', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
+  { id: '4', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
+  { id: '5', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
+  { id: '6', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
 ];
 
 interface Props {
@@ -30,8 +30,8 @@ interface Props {
 export default function HomeScreen({ navigation }: Props) {
   function renderBook({ item }: { item: typeof MOCK_BOOKS[0] }) {
     return (
-      <TouchableOpacity style={styles.card} activeOpacity={0.8}>
-        <Image source={{ uri: item.cover }} style={styles.cover} resizeMode="cover" />
+      <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => navigation.navigate('BookDetail', { book: item })}>
+        <Image source={{ uri: item.coverImage }} style={styles.cover} resizeMode="cover" />
         <Text style={styles.bookTitle} numberOfLines={2}>{item.title}</Text>
         <Text style={styles.bookPrice}>Preço: R${item.price.toFixed(2)}</Text>
       </TouchableOpacity>
