@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "../@types";
+import { User } from "../@types/type";
 import { getUser, saveUser } from "../services/storage";
 
 // Tipos de contexto
@@ -31,8 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: Date.now().toString(),
             name,
             email,
-            books: []
-        };
+        cart: { items: [], total: 0 }
+            };
         await saveUser(newUser);
         setUser(newUser);
     }
