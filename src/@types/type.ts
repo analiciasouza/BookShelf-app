@@ -1,17 +1,14 @@
-// ─── Livro ────────────────────────────────────────────────────────────────────
+
 export type Book = {
   id: string;
   title: string;
   author: string;
   description: string;
-  price: number;         // preço em reais
-  coverImage: string;    // URL da capa
-  stock: number;         // quantidade disponível
-  category: string;
-  createdAt: string;
+  price: number;         
+  coverImage: string;          
 };
 
-// ─── Carrinho ─────────────────────────────────────────────────────────────────
+
 export type CartItem = {
   book: Book;
   quantity: number;
@@ -19,10 +16,10 @@ export type CartItem = {
 
 export type Cart = {
   items: CartItem[];
-  total: number;         // calculado na hora de exibir
+  total: number;         
 };
 
-// ─── Usuário ──────────────────────────────────────────────────────────────────
+
 export type User = {
   id: string;
   name: string;

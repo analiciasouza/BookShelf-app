@@ -18,17 +18,15 @@ const slides = [
   {
     id: '1',
     title: 'Tenha todos os seus\nlivros em um lugar',
-    // 👇 Troque pelo caminho da sua ilustração salva em assets/
     image: require('../../assets/illustration-home.png'),
   },
-  // Adicione mais slides aqui se quiser um carrossel de onboarding
 ];
 
 interface Props {
   navigation: any;
 }
 
-export default function HomeScreen({ navigation }: Props) {
+export function InicialScreen({ navigation }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 

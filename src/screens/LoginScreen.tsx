@@ -15,7 +15,7 @@ interface Props {
   navigation: any;
 }
 
-export default function LoginScreen({ navigation }: Props) {
+export function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

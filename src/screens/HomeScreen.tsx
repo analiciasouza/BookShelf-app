@@ -1,4 +1,8 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useBooks } from '../hooks/useBooks';
+import { Book } from '../@types/type';
+
 import {
   View,
   Text,
@@ -6,29 +10,25 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   Dimensions,
 } from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+
+
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
-
-const MOCK_BOOKS = [
-  { id: '1', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '2', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
-  { id: '3', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '4', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
-  { id: '5', title: 'She who became the sun', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/11505297-L.jpg' },
-  { id: '6', title: 'This is how you lose the Time War', price: 24.99, coverImage: 'https://covers.openlibrary.org/b/id/9255920-L.jpg' },
-];
 
 interface Props {
   navigation: any;
 }
 
-export default function HomeScreen({ navigation }: Props) {
-  function renderBook({ item }: { item: typeof MOCK_BOOKS[0] }) {
+export function HomeScreen({ navigation }: Props) {
+  const { books, isLoading } = useBooks();
+
+  function renderBook({ item }: { item: Book }) {
     return (
       <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => navigation.navigate('BookDetail', { book: item })}>
         <Image source={{ uri: item.coverImage }} style={styles.cover} resizeMode="cover" />
@@ -38,6 +38,8 @@ export default function HomeScreen({ navigation }: Props) {
     );
   }
 
+  
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -45,17 +47,17 @@ export default function HomeScreen({ navigation }: Props) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Text style={styles.headerIcon}>🔍</Text>
+         <Ionicons name="search-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Home</Text>
+        <Ionicons name="home-outline" size={22} color="#1A1035" />
         <TouchableOpacity>
-          <Text style={styles.headerIcon}>🔔</Text>
+          <Ionicons name="notifications-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
       </View>
 
       {/* Grid de livros */}
       <FlatList
-        data={MOCK_BOOKS}
+        data={books}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={styles.row}
@@ -67,19 +69,19 @@ export default function HomeScreen({ navigation }: Props) {
       {/* Tab Bar */}
       <View style={styles.tabBar}>
         <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.tabIconActive}>🏠</Text>
+          <Ionicons name="home" size={22} color={PURPLE} />
           <Text style={styles.tabLabelActive}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Category')}>
-          <Text style={styles.tabIcon}>☰</Text>
+          <Ionicons name="grid-outline" size={22} color="#9E9E9E" />
           <Text style={styles.tabLabel}>Category</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Cart')}>
-          <Text style={styles.tabIcon}>🛒</Text>
+          <Ionicons name="cart-outline" size={22} color="#9E9E9E" />
           <Text style={styles.tabLabel}>Cart</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.tabIcon}>👤</Text>
+          <Ionicons name="person-outline" size={22} color="#9E9E9E" />
           <Text style={styles.tabLabel}>Profile</Text>
         </TouchableOpacity>
       </View>

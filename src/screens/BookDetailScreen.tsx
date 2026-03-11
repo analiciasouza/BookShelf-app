@@ -5,12 +5,15 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   Dimensions,
 } from 'react-native';
+
 import { Book } from '../@types/type';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useCart } from '../hooks/useCart';
 
 const { width } = Dimensions.get('window');
 
@@ -23,27 +26,32 @@ interface Props {
   };
 }
 
-export default function BookDetailScreen({ navigation, route }: Props) {
+export function BookDetailScreen({ navigation, route }: Props) {
   const { book } = route.params;
   const [quantity, setQuantity] = useState(1);
+  const { handleAddToCart } = useCart();
 
   function increment() {
-    if (quantity < book.stock) setQuantity(q => q + 1);
+   setQuantity(q => q + 1);
   }
 
   function decrement() {
-    if (quantity > 1) setQuantity(q => q - 1);
+     setQuantity(q => q - 1);
   }
 
-  async function handleAddToCart() {
-    // TODO: chamar addToCart do storage
-    console.log('Adicionando ao carrinho:', book.title, 'x', quantity);
+  function handleBuy() {
+    handleAddToCart(book);
     navigation.navigate('Cart');
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
+      {/* Botão voltar */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#1A1035" />
+      </TouchableOpacity>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Capa do livro */}
@@ -57,17 +65,14 @@ export default function BookDetailScreen({ navigation, route }: Props) {
 
         {/* Conteúdo */}
         <View style={styles.content}>
-          {/* Título e autor */}
           <Text style={styles.title}>{book.title}</Text>
           <Text style={styles.author}>{book.author}</Text>
-
-          {/* Descrição */}
           <Text style={styles.descriptionLabel}>Resumo do Livro:</Text>
           <Text style={styles.description}>{book.description}</Text>
         </View>
       </ScrollView>
 
-      {/* Rodapé fixo: quantidade + preço + botões */}
+      {/* Rodapé fixo */}
       <View style={styles.footer}>
         <View style={styles.purchaseRow}>
           {/* Contador */}
@@ -82,31 +87,23 @@ export default function BookDetailScreen({ navigation, route }: Props) {
           </View>
 
           {/* Preço */}
-          <Text style={styles.price}>
-            R${(book.price * quantity).toFixed(2)}
-          </Text>
+          <Text style={styles.price}>R${(book.price * quantity).toFixed(2)}</Text>
         </View>
 
         {/* Botão Comprar */}
-        <TouchableOpacity
-          style={styles.buyButton}
-          onPress={handleAddToCart}
-          activeOpacity={0.85}
-        >
+        <TouchableOpacity style={styles.buyButton} onPress={handleBuy} activeOpacity={0.85}>
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 
         {/* View cart */}
-        <TouchableOpacity
-          style={styles.viewCartWrapper}
-          onPress={() => navigation.navigate('Cart')}
-        >
+        <TouchableOpacity style={styles.viewCartWrapper} onPress={() => navigation.navigate('Cart')}>
           <Text style={styles.viewCartText}>View cart</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
+
 
 const PURPLE = '#5C3D99';
 
@@ -155,6 +152,11 @@ const styles = StyleSheet.create({
     color: '#555555',
     lineHeight: 20,
   },
+
+  backButton: { 
+  paddingHorizontal: 20, 
+  paddingVertical: 12 
+},
 
   // ─── Rodapé ───────────────────────────────────────────────────
   footer: {

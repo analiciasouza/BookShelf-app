@@ -4,10 +4,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Book } from '../@types/type';
 
-import InicialScreen from '../screens/InicialScreen';
-import LoginScreen from '../screens/LoginScreen';
-import HomeScreen from '../screens/HomeScreen';
-import BookDetailScreen from '../screens/BookDetailScreen';
+import { InicialScreen } from '../screens/InicialScreen';
+import { LoginScreen } from '../screens/LoginScreen';
+import  { HomeScreen } from '../screens/HomeScreen';
+import { BookDetailScreen } from '../screens/BookDetailScreen';
 
 export type RootStackParamList = {
   Inicial : undefined 

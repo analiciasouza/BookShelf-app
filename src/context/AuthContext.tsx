@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "../@types/type";
-import { getUser, saveUser } from "../services/storage";
+import React, { createContext, useEffect, useState } from 'react';
+import { User } from '../@types/type';
 
 // Tipos de contexto
-type AUthContextData = {
+type AuthContextData = {
     user: User | null;
     isLoading: boolean;
     signIn: (name: string, email: string) => Promise<void>;
@@ -11,45 +10,31 @@ type AUthContextData = {
 }
 
 // Criação do contexto
-const AuthContext = createContext<AUthContextData>({} as AUthContextData);
+export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        async function loadUser() {
-            const savedUser = await getUser();
-            if (savedUser) setUser(savedUser);
-            setIsLoading(false);
-        }
-        loadUser();
-    }, []);
+     async function signIn(name: string, email: string) {
+    const newUser: User = {
+      id: Date.now().toString(),
+      name,
+      email,
+      cart: { items: [], total: 0 },
+    };
+    setUser(newUser);
+  }
 
-    async function signIn(name: string, email: string) {
-        const newUser: User = {
-            id: Date.now().toString(),
-            name,
-            email,
-        cart: { items: [], total: 0 }
-            };
-        await saveUser(newUser);
-        setUser(newUser);
-    }
+  async function signOut() {
+    setUser(null);
+  }
 
-    async function signOut() {
-        setUser(null); }
-
-        return (
-            <AuthContext.Provider value={{ user, isLoading, signIn, signOut }}>
-                {children}
-            </AuthContext.Provider>
-        );
-    }
-
-
-export function useAuth() {
-    return useContext(AuthContext);
+  return (
+    <AuthContext.Provider value={{ user, isLoading, signIn, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
         
 
