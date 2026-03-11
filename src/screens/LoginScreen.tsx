@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/build/Ionicons';
 import React, { useState } from 'react';
 import {
   View,
@@ -5,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props {
   navigation: any;
@@ -22,8 +24,25 @@ export function LoginScreen({ navigation }: Props) {
 
   async function handleLogin() {
     // TODO: depois conectar com autenticação real
-  navigation.navigate('Home');
-}
+    if (!email || !password) {
+      alert('Por favor, preencha email e senha');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) { 
+      alert('Por favor, insira um email válido');
+      return;
+    }
+
+    if (password.length < 8) {
+      alert('A senha deve conter pelo menos 8 caracteres');
+      return;
+    }
+     navigation.navigate('Home');
+  }
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,16 +85,20 @@ export function LoginScreen({ navigation }: Props) {
             onChangeText={setPassword}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+            <Ionicons 
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+              size={20} 
+              color="#9E9E9E" 
+            />
           </TouchableOpacity>
         </View>
 
-        {/* Forgot Password */}
+        
         <TouchableOpacity style={styles.forgotWrapper}>
           <Text style={styles.forgotText}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        {/* Botão Login */}
+        
         <TouchableOpacity
           style={styles.loginButton}
           onPress={handleLogin}
@@ -84,7 +107,6 @@ export function LoginScreen({ navigation }: Props) {
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
-        {/* Cadastre-se */}
         <View style={styles.signupRow}>
           <Text style={styles.signupText}>Não tem conta? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>

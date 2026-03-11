@@ -7,9 +7,10 @@ import {
   Dimensions,
   Image,
   FlatList,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,7 +40,6 @@ export function InicialScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Carrossel de ilustração */}
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -61,11 +61,11 @@ export function InicialScreen({ navigation }: Props) {
         )}
       />
 
-      {/* Texto e controles */}
+      
       <View style={styles.bottomContainer}>
         <Text style={styles.title}>{slides[activeIndex].title}</Text>
 
-        {/* Dots de paginação */}
+        
         <View style={styles.dotsContainer}>
           {slides.map((_, index) => (
             <View
@@ -75,7 +75,7 @@ export function InicialScreen({ navigation }: Props) {
           ))}
         </View>
 
-        {/* Botões */}
+        
         <TouchableOpacity
           style={styles.buttonPrimary}
           onPress={() => navigation.navigate('Register')}

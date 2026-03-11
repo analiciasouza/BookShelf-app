@@ -86,16 +86,16 @@ export function BookDetailScreen({ navigation, route }: Props) {
             </TouchableOpacity>
           </View>
 
-          {/* Preço */}
+          
           <Text style={styles.price}>R${(book.price * quantity).toFixed(2)}</Text>
         </View>
 
-        {/* Botão Comprar */}
+        
         <TouchableOpacity style={styles.buyButton} onPress={handleBuy} activeOpacity={0.85}>
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 
-        {/* View cart */}
+        
         <TouchableOpacity style={styles.viewCartWrapper} onPress={() => navigation.navigate('Cart')}>
           <Text style={styles.viewCartText}>View cart</Text>
         </TouchableOpacity>
