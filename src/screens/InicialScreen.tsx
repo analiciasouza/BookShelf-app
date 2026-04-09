@@ -7,9 +7,10 @@ import {
   Dimensions,
   Image,
   FlatList,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,17 +19,15 @@ const slides = [
   {
     id: '1',
     title: 'Tenha todos os seus\nlivros em um lugar',
-    // 👇 Troque pelo caminho da sua ilustração salva em assets/
     image: require('../../assets/illustration-home.png'),
   },
-  // Adicione mais slides aqui se quiser um carrossel de onboarding
 ];
 
 interface Props {
   navigation: any;
 }
 
-export default function HomeScreen({ navigation }: Props) {
+export function InicialScreen({ navigation }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -41,7 +40,6 @@ export default function HomeScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Carrossel de ilustração */}
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -63,11 +61,11 @@ export default function HomeScreen({ navigation }: Props) {
         )}
       />
 
-      {/* Texto e controles */}
+      
       <View style={styles.bottomContainer}>
         <Text style={styles.title}>{slides[activeIndex].title}</Text>
 
-        {/* Dots de paginação */}
+        
         <View style={styles.dotsContainer}>
           {slides.map((_, index) => (
             <View
@@ -77,7 +75,7 @@ export default function HomeScreen({ navigation }: Props) {
           ))}
         </View>
 
-        {/* Botões */}
+        
         <TouchableOpacity
           style={styles.buttonPrimary}
           onPress={() => navigation.navigate('Register')}
