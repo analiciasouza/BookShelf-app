@@ -8,6 +8,7 @@ import { InicialScreen } from '../screens/InicialScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import  { HomeScreen } from '../screens/HomeScreen';
 import { BookDetailScreen } from '../screens/BookDetailScreen';
+import { ConfirmOrderScreen } from '../screens/ConfirmOrderScreen';
 
 export type RootStackParamList = {
   Inicial : undefined 
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   BookDetail: { book: Book };
+  ConfirmOrder: { items: { book: Book; quantity: number }[]; total: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,6 +29,7 @@ export default function Routes() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="BookDetail" component={BookDetailScreen} />
+        <Stack.Screen name="ConfirmOrder" component={ConfirmOrderScreen} />
         
       </Stack.Navigator>
     </NavigationContainer>
