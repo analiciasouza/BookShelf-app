@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { CartItem } from '../@types/type';
 
@@ -10,12 +10,19 @@ import {
   StyleSheet,
   StatusBar,
   ScrollView,
+  Modal,
+  Animated,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PURPLE = '#5C3D99';
 const SHIPPING_FEE = 2.0;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+type PaymentMethod = 'knet' | 'credit_card' | null;
 
 interface Props {
   navigation: any;
@@ -27,11 +34,66 @@ interface Props {
   };
 }
 
+// ─── Componente Bottom Sheet genérico ───────────────────────────────────────
+function BottomSheet({
+  visible,
+  onClose,
+  children,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
+  React.useEffect(() => {
+    if (visible) {
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        bounciness: 4,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_HEIGHT,
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={sheetStyles.overlay} />
+      </TouchableWithoutFeedback>
+      <Animated.View
+        style={[sheetStyles.sheet, { transform: [{ translateY: slideAnim }] }]}
+      >
+        <View style={sheetStyles.handle} />
+        {children}
+      </Animated.View>
+    </Modal>
+  );
+}
+
+// ─── Tela principal ──────────────────────────────────────────────────────────
 export function ConfirmOrderScreen({ navigation, route }: Props) {
   const { items, total } = route.params;
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetailsSheet, setShowDetailsSheet] = useState(false);
+  const [showPaymentSheet, setShowPaymentSheet] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
 
   const totalPayment = total + SHIPPING_FEE;
+
+  const paymentLabel =
+    selectedPayment === 'knet'
+      ? 'KNET'
+      : selectedPayment === 'credit_card'
+      ? 'Credit Card'
+      : 'Choose your payment';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,6 +112,26 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
+        {/* Address */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Address</Text>
+          <View style={styles.addressRow}>
+            <View style={styles.addressIcon}>
+              <Ionicons name="location-outline" size={20} color={PURPLE} />
+            </View>
+            <View style={styles.addressInfo}>
+              <Text style={styles.addressTitle}>Utama Street No.20</Text>
+              <Text style={styles.addressSubtitle}>
+                Dumbo Street No.20, Dumbo,{'\n'}New York 10001, United States
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
+          </View>
+          <TouchableOpacity style={styles.changeButton}>
+            <Text style={styles.changeText}>Change</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Summary */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Summary</Text>
@@ -60,9 +142,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
               <View style={styles.bookInfo}>
                 <Text style={styles.bookTitle} numberOfLines={2}>{book.title}</Text>
                 <Text style={styles.bookAuthor}>Autor: {book.author}</Text>
-                {quantity > 1 && (
-                  <Text style={styles.bookQty}>Qtd: {quantity}</Text>
-                )}
+                {quantity > 1 && <Text style={styles.bookQty}>Qtd: {quantity}</Text>}
               </View>
             </View>
           ))}
@@ -70,72 +150,39 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
           <View style={styles.divider} />
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Preço</Text>
+            <Text style={styles.priceLabel}>Price</Text>
             <Text style={styles.priceValue}>R${total.toFixed(2)}</Text>
           </View>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Frete</Text>
+            <Text style={styles.priceLabel}>Shipping</Text>
             <Text style={styles.priceValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
           </View>
-          <View style={styles.priceRow}>
+          <View style={[styles.priceRow, { marginTop: 4 }]}>
             <Text style={styles.totalLabel}>Total Payment</Text>
             <Text style={styles.totalValue}>R${totalPayment.toFixed(2)}</Text>
           </View>
 
           <TouchableOpacity
             style={styles.seeDetails}
-            onPress={() => setShowDetails(!showDetails)}
+            onPress={() => setShowDetailsSheet(true)}
           >
             <Text style={styles.seeDetailsText}>See details</Text>
-            <Ionicons
-              name={showDetails ? 'chevron-up-outline' : 'chevron-forward-outline'}
-              size={16}
-              color={PURPLE}
-            />
-          </TouchableOpacity>
-
-          {showDetails && (
-            <View style={styles.detailsBox}>
-              {items.map(({ book, quantity }) => (
-                <View key={book.id} style={styles.detailRow}>
-                  <Text style={styles.detailName} numberOfLines={1}>{book.title}</Text>
-                  <Text style={styles.detailValue}>
-                    {quantity}x R${book.price.toFixed(2)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Address */}
-        <View style={styles.section}>
-          <View style={styles.addressRow}>
-            <View style={styles.addressIcon}>
-              <Ionicons name="location-outline" size={20} color={PURPLE} />
-            </View>
-            <View style={styles.addressInfo}>
-              <Text style={styles.addressTitle}>Utama Street No.20</Text>
-              <Text style={styles.addressSubtitle}>
-                Dumbo No.20, Dumbo,{'\n'}New York 10001, United States
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.changeButton}>
-            <Text style={styles.changeText}>Change</Text>
+            <Ionicons name="chevron-forward-outline" size={16} color={PURPLE} />
           </TouchableOpacity>
         </View>
 
         {/* Payment */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment</Text>
-          <TouchableOpacity style={styles.paymentRow}>
+          <TouchableOpacity
+            style={styles.paymentRow}
+            onPress={() => setShowPaymentSheet(true)}
+          >
             <View style={styles.paymentIcon}>
               <Ionicons name="card-outline" size={20} color={PURPLE} />
             </View>
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>Payment</Text>
-              <Text style={styles.paymentSubtitle}>Choose your payment</Text>
+              <Text style={styles.paymentSubtitle}>{paymentLabel}</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
           </TouchableOpacity>
@@ -145,20 +192,84 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
 
       {/* Order Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.orderButton}
-          activeOpacity={0.85}
-          onPress={() => {
-            // TODO: handle order submission
-          }}
-        >
+        <TouchableOpacity style={styles.orderButton} activeOpacity={0.85}>
           <Text style={styles.orderButtonText}>Order</Text>
         </TouchableOpacity>
       </View>
+
+      {/* ── Bottom Sheet 6.2: Payment Details ── */}
+      <BottomSheet visible={showDetailsSheet} onClose={() => setShowDetailsSheet(false)}>
+        <Text style={sheetStyles.title}>Payment Details</Text>
+
+        {/* Bloco de preço dos itens */}
+        <View style={sheetStyles.detailBlock}>
+          <View style={sheetStyles.detailHeaderRow}>
+            <Text style={sheetStyles.detailHeaderLabel}>Price</Text>
+            <Text style={sheetStyles.detailHeaderValue}>R${total.toFixed(2)}</Text>
+          </View>
+          {items.map(({ book, quantity }) => (
+            <View key={book.id} style={sheetStyles.detailRow}>
+              <Text style={sheetStyles.detailName} numberOfLines={1}>{book.title}</Text>
+              <Text style={sheetStyles.detailItemValue}>
+                R${(book.price * quantity).toFixed(2)}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={sheetStyles.separator} />
+
+        <View style={sheetStyles.detailRow}>
+          <Text style={sheetStyles.detailName}>Shipping</Text>
+          <Text style={sheetStyles.detailItemValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
+        </View>
+
+        <View style={sheetStyles.separator} />
+
+        <View style={sheetStyles.detailRow}>
+          <Text style={sheetStyles.detailTotalLabel}>Total Payment</Text>
+          <Text style={sheetStyles.detailTotalValue}>R${totalPayment.toFixed(2)}</Text>
+        </View>
+      </BottomSheet>
+
+      {/* ── Bottom Sheet 6.3: Your Payments ── */}
+      <BottomSheet visible={showPaymentSheet} onClose={() => setShowPaymentSheet(false)}>
+        <Text style={sheetStyles.title}>Your Payments</Text>
+
+        <TouchableOpacity
+          style={sheetStyles.paymentOption}
+          onPress={() => {
+            setSelectedPayment('knet');
+            setShowPaymentSheet(false);
+          }}
+        >
+          <View style={[sheetStyles.paymentOptionIcon, { backgroundColor: '#E8F4FD' }]}>
+            <Ionicons name="card" size={22} color="#1B6CA8" />
+          </View>
+          <Text style={sheetStyles.paymentOptionLabel}>KNET</Text>
+          <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={sheetStyles.paymentOption}
+          onPress={() => {
+            setSelectedPayment('credit_card');
+            setShowPaymentSheet(false);
+          }}
+        >
+          <View style={[sheetStyles.paymentOptionIcon, { backgroundColor: '#FFF3E0' }]}>
+            <Ionicons name="card-outline" size={22} color="#E65100" />
+          </View>
+          <Text style={sheetStyles.paymentOptionLabel}>Credit Card</Text>
+          <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
+        </TouchableOpacity>
+      </BottomSheet>
+
     </SafeAreaView>
   );
 }
 
+// ─── Estilos da tela ─────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
 
@@ -184,59 +295,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F0F0F0',
   },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1A1035',
-    marginBottom: 14,
-  },
-
-  // Book row
-  bookRow: { flexDirection: 'row', marginBottom: 12 },
-  bookCover: {
-    width: 72,
-    height: 100,
-    borderRadius: 6,
-    backgroundColor: '#F0F0F0',
-  },
-  bookInfo: { flex: 1, marginLeft: 12, justifyContent: 'center' },
-  bookTitle: { fontSize: 14, fontWeight: '600', color: '#1A1035', marginBottom: 4 },
-  bookAuthor: { fontSize: 12, color: '#9E9E9E', marginBottom: 4 },
-  bookQty: { fontSize: 12, color: PURPLE, fontWeight: '500' },
-
-  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 12 },
-
-  // Prices
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  priceLabel: { fontSize: 13, color: '#9E9E9E' },
-  priceValue: { fontSize: 13, color: '#1A1035', fontWeight: '500' },
-  totalLabel: { fontSize: 14, fontWeight: '700', color: '#1A1035' },
-  totalValue: { fontSize: 14, fontWeight: '700', color: PURPLE },
-
-  // See details
-  seeDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  seeDetailsText: { fontSize: 13, color: PURPLE, fontWeight: '500', marginRight: 2 },
-  detailsBox: {
-    marginTop: 10,
-    backgroundColor: '#F4F0FB',
-    borderRadius: 8,
-    padding: 10,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  detailName: { fontSize: 12, color: '#1A1035', flex: 1, marginRight: 8 },
-  detailValue: { fontSize: 12, color: PURPLE, fontWeight: '500' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1A1035', marginBottom: 14 },
 
   // Address
   addressRow: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -264,11 +323,26 @@ const styles = StyleSheet.create({
   },
   changeText: { fontSize: 13, color: PURPLE, fontWeight: '500' },
 
-  // Payment
-  paymentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  // Book row
+  bookRow: { flexDirection: 'row', marginBottom: 12 },
+  bookCover: { width: 72, height: 100, borderRadius: 6, backgroundColor: '#F0F0F0' },
+  bookInfo: { flex: 1, marginLeft: 12, justifyContent: 'center' },
+  bookTitle: { fontSize: 14, fontWeight: '600', color: '#1A1035', marginBottom: 4 },
+  bookAuthor: { fontSize: 12, color: '#9E9E9E', marginBottom: 4 },
+  bookQty: { fontSize: 12, color: PURPLE, fontWeight: '500' },
+
+  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 12 },
+
+  priceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  priceLabel: { fontSize: 13, color: '#9E9E9E' },
+  priceValue: { fontSize: 13, color: '#1A1035', fontWeight: '500' },
+  totalLabel: { fontSize: 14, fontWeight: '700', color: '#1A1035' },
+  totalValue: { fontSize: 14, fontWeight: '700', color: PURPLE },
+
+  seeDetails: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
+  seeDetailsText: { fontSize: 13, color: PURPLE, fontWeight: '500', marginRight: 2 },
+
+  paymentRow: { flexDirection: 'row', alignItems: 'center' },
   paymentIcon: {
     width: 36,
     height: 36,
@@ -282,7 +356,6 @@ const styles = StyleSheet.create({
   paymentTitle: { fontSize: 14, fontWeight: '600', color: '#1A1035' },
   paymentSubtitle: { fontSize: 12, color: '#9E9E9E', marginTop: 2 },
 
-  // Footer
   footer: {
     paddingHorizontal: 20,
     paddingVertical: 14,
@@ -297,4 +370,89 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+});
+
+// ─── Estilos do Bottom Sheet ──────────────────────────────────────────────────
+const sheetStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  sheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 36,
+    paddingTop: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  handle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E0E0E0',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1035',
+    marginBottom: 20,
+  },
+
+  // Payment Details
+  detailBlock: { marginBottom: 4 },
+  detailHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  detailHeaderLabel: { fontSize: 14, fontWeight: '600', color: '#1A1035' },
+  detailHeaderValue: { fontSize: 14, fontWeight: '600', color: '#1A1035' },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  detailName: { fontSize: 13, color: '#9E9E9E', flex: 1, marginRight: 8 },
+  detailItemValue: { fontSize: 13, color: '#9E9E9E' },
+  separator: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 12 },
+  detailTotalLabel: { fontSize: 14, fontWeight: '700', color: '#1A1035' },
+  detailTotalValue: { fontSize: 14, fontWeight: '700', color: PURPLE },
+
+  // Your Payments
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  paymentOptionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  paymentOptionLabel: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1035',
+  },
 });
