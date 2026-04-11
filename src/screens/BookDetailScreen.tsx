@@ -13,7 +13,7 @@ import {
 import { Book } from '../@types/type';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from '../hooks/useCart';
+import { useCart } from '../context/CartContext';
 
 const { width } = Dimensions.get('window');
 
@@ -36,11 +36,12 @@ export function BookDetailScreen({ navigation, route }: Props) {
   }
 
   function decrement() {
-     setQuantity(q => q - 1);
+    if (quantity > 1)
+      setQuantity(q => q - 1);
   }
 
   function handleBuy() {
-    handleAddToCart(book);
+    handleAddToCart(book, quantity);
     navigation.navigate('Cart');
   }
 
@@ -90,12 +91,12 @@ export function BookDetailScreen({ navigation, route }: Props) {
           <Text style={styles.price}>R${(book.price * quantity).toFixed(2)}</Text>
         </View>
 
-        
+         {/* Comprar → adiciona ao carrinho e navega */}
         <TouchableOpacity style={styles.buyButton} onPress={handleBuy} activeOpacity={0.85}>
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 
-        
+        {/* Ver carrinho sem adicionar */}
         <TouchableOpacity style={styles.viewCartWrapper} onPress={() => navigation.navigate('Cart')}>
           <Text style={styles.viewCartText}>View cart</Text>
         </TouchableOpacity>
