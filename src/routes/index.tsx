@@ -3,12 +3,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Book } from '../@types/type';
+import { CartItem } from '../@types/type';
 
 import { InicialScreen } from '../screens/InicialScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import  { HomeScreen } from '../screens/HomeScreen';
 import { BookDetailScreen } from '../screens/BookDetailScreen';
 import { ConfirmOrderScreen } from '../screens/ConfirmOrderScreen';
+import { OrderStatusScreen } from '../screens/OrderStatusScreen';
+import { OrderReceivedScreen } from '../screens/OrderReceivedScreen';
 
 export type RootStackParamList = {
   Inicial : undefined 
@@ -17,6 +20,8 @@ export type RootStackParamList = {
   Register: undefined;
   BookDetail: { book: Book };
   ConfirmOrder: { items: { book: Book; quantity: number }[]; total: number };
+  OrderStatus: { items: CartItem[]; total: number; orderId?: string };
+  OrderReceived: { orderId?: string }
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,7 +35,8 @@ export default function Routes() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="BookDetail" component={BookDetailScreen} />
         <Stack.Screen name="ConfirmOrder" component={ConfirmOrderScreen} />
-        
+        <Stack.Screen name="OrderStatus" component={OrderStatusScreen} />
+        <Stack.Screen name="OrderReceived" component={OrderReceivedScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
