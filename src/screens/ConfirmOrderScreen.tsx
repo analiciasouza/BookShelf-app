@@ -79,7 +79,7 @@ function BottomSheet({
   );
 }
 
-// ─── Tela principal ──────────────────────────────────────────────────────────
+
 export function ConfirmOrderScreen({ navigation, route }: Props) {
   const { items, total } = route.params;
   const [showDetailsSheet, setShowDetailsSheet] = useState(false);
@@ -115,6 +115,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
         {/* Address */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Address</Text>
+          <TouchableOpacity style={styles.addressRow} activeOpacity={0.8} onPress={() => navigation.navigate('Location')}>
           <View style={styles.addressRow}>
             <View style={styles.addressIcon}>
               <Ionicons name="location-outline" size={20} color={PURPLE} />
@@ -127,7 +128,8 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
           </View>
-          <TouchableOpacity style={styles.changeButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.changeButton} onPress={() => navigation.navigate('Location')}>
             <Text style={styles.changeText}>Change</Text>
           </TouchableOpacity>
         </View>
