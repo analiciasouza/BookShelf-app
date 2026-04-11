@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import MapView, { Marker, Region } from 'react-native-maps';
@@ -42,21 +42,28 @@ interface Props {
 // ─── Tela 4.1: Mapa + Endereço detectado ────────────────────────────────────
 function MapStep({
   onConfirm,
+  onManual,
   onUseGPS,
   detectedAddress,
   region,
   loadingGPS,
 }: {
   onConfirm: () => void;
+  onManual: () => void;
   onUseGPS: () => void;
   detectedAddress: string;
   region: Region | null;
   loadingGPS: boolean;
 }) {
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Mapa */}
         <View style={styles.mapContainer}>
           {region ? (
@@ -112,20 +119,38 @@ function MapStep({
                 </>
               ) : (
                 <Text style={styles.addressPlaceholder}>
-                  {loadingGPS ? 'Detectando localização...' : 'Pressione o ícone GPS para detectar'}
+                  {loadingGPS
+                    ? 'Detectando localização...'
+                    : 'Pressione o ícone GPS para detectar'}
                 </Text>
               )}
             </View>
           </View>
 
-          {/* Save Address As */}
           <SaveAddressAs />
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.confirmButton} onPress={onConfirm} activeOpacity={0.85}>
+        {/* Botão principal — confirma com GPS */}
+        <TouchableOpacity
+          style={styles.confirmButton}
+          onPress={onConfirm}
+          activeOpacity={0.85}
+        >
           <Text style={styles.confirmButtonText}>Confirmation</Text>
+        </TouchableOpacity>
+
+        {/* Botão secundário — cadastro manual */}
+        <TouchableOpacity
+          style={styles.manualButton}
+          onPress={onManual}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="create-outline" size={16} color={PURPLE} />
+          <Text style={styles.manualButtonText}>
+            Cadastrar endereço manualmente
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -143,13 +168,17 @@ function SaveAddressAs() {
           style={[styles.chip, selected === 'home' && styles.chipActive]}
           onPress={() => setSelected('home')}
         >
-          <Text style={[styles.chipText, selected === 'home' && styles.chipTextActive]}>Home</Text>
+          <Text style={[styles.chipText, selected === 'home' && styles.chipTextActive]}>
+            Home
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.chip, selected === 'offices' && styles.chipActive]}
           onPress={() => setSelected('offices')}
         >
-          <Text style={[styles.chipText, selected === 'offices' && styles.chipTextActive]}>Offices</Text>
+          <Text style={[styles.chipText, selected === 'offices' && styles.chipTextActive]}>
+            Offices
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -183,7 +212,7 @@ function FormStep({
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
-  const fields: { key: keyof AddressForm; label: string; optional?: boolean }[] = [
+  const fields: { key: keyof AddressForm; label: string }[] = [
     { key: 'phone', label: 'Phone' },
     { key: 'name', label: 'Name' },
     { key: 'governorate', label: 'Governorate' },
@@ -191,15 +220,21 @@ function FormStep({
     { key: 'block', label: 'Block' },
     { key: 'streetName', label: 'Street name /number' },
     { key: 'buildingName', label: 'Building name/number' },
-    { key: 'floor', label: 'Floor (option)', optional: true },
-    { key: 'flat', label: 'Flat(option)', optional: true },
-    { key: 'avenue', label: 'Avenue (option)', optional: true },
+    { key: 'floor', label: 'Floor (option)' },
+    { key: 'flat', label: 'Flat (option)' },
+    { key: 'avenue', label: 'Avenue (option)' },
   ];
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
-        {fields.map(({ key, label, optional }) => (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.formScrollContent}
+      >
+        {fields.map(({ key, label }) => (
           <View key={key} style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>{label}</Text>
             <TextInput
@@ -235,7 +270,6 @@ export function LocationScreen({ navigation }: Props) {
   const [detectedAddress, setDetectedAddress] = useState('');
   const [loadingGPS, setLoadingGPS] = useState(false);
 
-  // Tenta pegar GPS ao montar a tela
   useEffect(() => {
     handleUseGPS();
   }, []);
@@ -249,7 +283,6 @@ export function LocationScreen({ navigation }: Props) {
           'Permissão negada',
           'Permita o acesso à localização nas configurações do dispositivo.'
         );
-        setLoadingGPS(false);
         return;
       }
 
@@ -259,14 +292,8 @@ export function LocationScreen({ navigation }: Props) {
 
       const { latitude, longitude } = location.coords;
 
-      setRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
+      setRegion({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 });
 
-      // Geocoding reverso — transforma coordenadas em endereço legível
       const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
 
       if (place) {
@@ -281,19 +308,15 @@ export function LocationScreen({ navigation }: Props) {
 
         setDetectedAddress(parts.join(', '));
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Erro', 'Não foi possível obter a localização.');
     } finally {
       setLoadingGPS(false);
     }
   }
 
-  function handleMapConfirm() {
-    setStep('form');
-  }
-
   function handleFormConfirm(form: AddressForm) {
-    // TODO: salvar endereço e navegar de volta
+    // TODO: salvar endereço
     navigation.goBack();
   }
 
@@ -303,10 +326,12 @@ export function LocationScreen({ navigation }: Props) {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => {
-          if (step === 'form') setStep('map');
-          else navigation.goBack();
-        }}>
+        <TouchableOpacity
+          onPress={() => {
+            if (step === 'form') setStep('map');
+            else navigation.goBack();
+          }}
+        >
           <Ionicons name="arrow-back-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Location</Text>
@@ -316,17 +341,19 @@ export function LocationScreen({ navigation }: Props) {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={handleUseGPS}>
-            {loadingGPS
-              ? <ActivityIndicator size="small" color={PURPLE} />
-              : <Ionicons name="locate-outline" size={22} color={PURPLE} />
-            }
+            {loadingGPS ? (
+              <ActivityIndicator size="small" color={PURPLE} />
+            ) : (
+              <Ionicons name="locate-outline" size={22} color={PURPLE} />
+            )}
           </TouchableOpacity>
         )}
       </View>
 
       {step === 'map' ? (
         <MapStep
-          onConfirm={handleMapConfirm}
+          onConfirm={() => setStep('form')}
+          onManual={() => setStep('form')}
           onUseGPS={handleUseGPS}
           detectedAddress={detectedAddress}
           region={region}
@@ -361,7 +388,6 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 24 },
   formScrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 },
 
-  // Mapa
   mapContainer: {
     marginHorizontal: 20,
     marginTop: 20,
@@ -376,7 +402,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Marker customizado
   markerOuter: {
     width: 28,
     height: 28,
@@ -392,7 +417,6 @@ const styles = StyleSheet.create({
     backgroundColor: PURPLE,
   },
 
-  // Card de endereço
   detailCard: {
     marginHorizontal: 20,
     marginTop: 16,
@@ -434,7 +458,6 @@ const styles = StyleSheet.create({
   addressFull: { fontSize: 12, color: '#9E9E9E', lineHeight: 18 },
   addressPlaceholder: { fontSize: 13, color: '#C4C4C4', fontStyle: 'italic' },
 
-  // Save as
   saveAsBlock: { marginTop: 20 },
   saveAsLabel: { fontSize: 13, fontWeight: '600', color: '#1A1035', marginBottom: 10 },
   saveAsChips: { flexDirection: 'row', gap: 10 },
@@ -450,7 +473,6 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 13, color: '#9E9E9E' },
   chipTextActive: { color: PURPLE, fontWeight: '600' },
 
-  // Formulário
   fieldGroup: { marginBottom: 16 },
   fieldLabel: { fontSize: 13, fontWeight: '600', color: '#1A1035', marginBottom: 6 },
   input: {
@@ -464,13 +486,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
 
-  // Footer
   footer: {
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: 14,
+    paddingBottom: 20,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
+    gap: 10,
   },
   confirmButton: {
     backgroundColor: PURPLE,
@@ -479,4 +502,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+
+  manualButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    gap: 6,
+  },
+  manualButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: PURPLE,
+    textDecorationLine: 'underline',
+  },
 });

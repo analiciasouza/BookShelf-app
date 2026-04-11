@@ -13,6 +13,7 @@ import { ConfirmOrderScreen } from '../screens/ConfirmOrderScreen';
 import { OrderStatusScreen } from '../screens/OrderStatusScreen';
 import { OrderReceivedScreen } from '../screens/OrderReceivedScreen';
 import { CartScreen } from '../screens/CartScreen';
+import { LocationScreen } from '../screens/LocationScreen';
 
 export type RootStackParamList = {
   Inicial : undefined 
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   OrderStatus: { items: CartItem[]; total: number; orderId?: string };
   OrderReceived: { orderId?: string };
   Cart: undefined;
+  Location: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,6 +42,7 @@ export default function Routes() {
         <Stack.Screen name="OrderStatus" component={OrderStatusScreen} />
         <Stack.Screen name="OrderReceived" component={OrderReceivedScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />
+        <Stack.Screen name="Location" component={LocationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
