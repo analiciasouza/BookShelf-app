@@ -95,7 +95,7 @@ export function LoginScreen({ navigation }: Props) {
 
         
         <TouchableOpacity style={styles.forgotWrapper}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
+          <Text style={styles.forgotText}>Esqueceu a senha?</Text>
         </TouchableOpacity>
 
         

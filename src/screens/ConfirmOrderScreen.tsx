@@ -92,8 +92,8 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
     selectedPayment === 'knet'
       ? 'KNET'
       : selectedPayment === 'credit_card'
-      ? 'Credit Card'
-      : 'Choose your payment';
+      ? 'Cartão de Crédito'
+      : 'Escolha uma forma de pagamento';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,7 +104,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Confirm Order</Text>
+        <Text style={styles.headerTitle}>Confirmar Pedido</Text>
         <TouchableOpacity>
           <Ionicons name="notifications-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
@@ -114,29 +114,29 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
 
         {/* Address */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Address</Text>
+          <Text style={styles.sectionTitle}>Endereço</Text>
           <TouchableOpacity style={styles.addressRow} activeOpacity={0.8} onPress={() => navigation.navigate('Location')}>
           <View style={styles.addressRow}>
             <View style={styles.addressIcon}>
               <Ionicons name="location-outline" size={20} color={PURPLE} />
             </View>
             <View style={styles.addressInfo}>
-              <Text style={styles.addressTitle}>Utama Street No.20</Text>
+              <Text style={styles.addressTitle}>Rua Dumbo</Text>
               <Text style={styles.addressSubtitle}>
-                Dumbo Street No.20, Dumbo,{'\n'}New York 10001, United States
+                Rua Dumbo 123{'\n'}Maceió, Alagoas
               </Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
           </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.changeButton} onPress={() => navigation.navigate('Location')}>
-            <Text style={styles.changeText}>Change</Text>
+            <Text style={styles.changeText}>Mudar</Text>
           </TouchableOpacity>
         </View>
 
         {/* Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Summary</Text>
+          <Text style={styles.sectionTitle}>Resumo</Text>
 
           {items.map(({ book, quantity }) => (
             <View key={book.id} style={styles.bookRow}>
@@ -152,15 +152,15 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
           <View style={styles.divider} />
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Price</Text>
+            <Text style={styles.priceLabel}>Preço</Text>
             <Text style={styles.priceValue}>R${total.toFixed(2)}</Text>
           </View>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Shipping</Text>
+            <Text style={styles.priceLabel}>Frete</Text>
             <Text style={styles.priceValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
           </View>
           <View style={[styles.priceRow, { marginTop: 4 }]}>
-            <Text style={styles.totalLabel}>Total Payment</Text>
+            <Text style={styles.totalLabel}>Total:</Text>
             <Text style={styles.totalValue}>R${totalPayment.toFixed(2)}</Text>
           </View>
 
@@ -168,7 +168,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
             style={styles.seeDetails}
             onPress={() => setShowDetailsSheet(true)}
           >
-            <Text style={styles.seeDetailsText}>See details</Text>
+            <Text style={styles.seeDetailsText}>Ver detalhes:</Text>
             <Ionicons name="chevron-forward-outline" size={16} color={PURPLE} />
           </TouchableOpacity>
         </View>
@@ -183,7 +183,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
               <Ionicons name="card-outline" size={20} color={PURPLE} />
             </View>
             <View style={styles.paymentInfo}>
-              <Text style={styles.paymentTitle}>Payment</Text>
+              <Text style={styles.paymentTitle}>Pagamento</Text>
               <Text style={styles.paymentSubtitle}>{paymentLabel}</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
@@ -194,19 +194,19 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
 
       {/* Order Button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.orderButton} activeOpacity={0.85}>
-          <Text style={styles.orderButtonText}>Order</Text>
+        <TouchableOpacity style={styles.orderButton} activeOpacity={0.85} onPress={() => navigation.navigate('OrderStatus', { items, total })}>
+          <Text style={styles.orderButtonText}>Confirmar Pedido</Text>
         </TouchableOpacity>
       </View>
 
       {/* ── Bottom Sheet 6.2: Payment Details ── */}
       <BottomSheet visible={showDetailsSheet} onClose={() => setShowDetailsSheet(false)}>
-        <Text style={sheetStyles.title}>Payment Details</Text>
+        <Text style={sheetStyles.title}>Detalhes Pagamento</Text>
 
         {/* Bloco de preço dos itens */}
         <View style={sheetStyles.detailBlock}>
           <View style={sheetStyles.detailHeaderRow}>
-            <Text style={sheetStyles.detailHeaderLabel}>Price</Text>
+            <Text style={sheetStyles.detailHeaderLabel}>Preço</Text>
             <Text style={sheetStyles.detailHeaderValue}>R${total.toFixed(2)}</Text>
           </View>
           {items.map(({ book, quantity }) => (
@@ -222,21 +222,21 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
         <View style={sheetStyles.separator} />
 
         <View style={sheetStyles.detailRow}>
-          <Text style={sheetStyles.detailName}>Shipping</Text>
+          <Text style={sheetStyles.detailName}>Frete</Text>
           <Text style={sheetStyles.detailItemValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
         </View>
 
         <View style={sheetStyles.separator} />
 
         <View style={sheetStyles.detailRow}>
-          <Text style={sheetStyles.detailTotalLabel}>Total Payment</Text>
+          <Text style={sheetStyles.detailTotalLabel}>Total:</Text>
           <Text style={sheetStyles.detailTotalValue}>R${totalPayment.toFixed(2)}</Text>
         </View>
       </BottomSheet>
 
       {/* ── Bottom Sheet 6.3: Your Payments ── */}
       <BottomSheet visible={showPaymentSheet} onClose={() => setShowPaymentSheet(false)}>
-        <Text style={sheetStyles.title}>Your Payments</Text>
+        <Text style={sheetStyles.title}>Seus pagamentos</Text>
 
         <TouchableOpacity
           style={sheetStyles.paymentOption}
@@ -262,7 +262,7 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
           <View style={[sheetStyles.paymentOptionIcon, { backgroundColor: '#FFF3E0' }]}>
             <Ionicons name="card-outline" size={22} color="#E65100" />
           </View>
-          <Text style={sheetStyles.paymentOptionLabel}>Credit Card</Text>
+          <Text style={sheetStyles.paymentOptionLabel}>Cartão de Crédito</Text>
           <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
         </TouchableOpacity>
       </BottomSheet>

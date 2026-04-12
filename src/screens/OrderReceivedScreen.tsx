@@ -48,14 +48,14 @@ export function OrderReceivedScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <Text style={styles.title}>You Received The Order!</Text>
-        <Text style={styles.orderId}>Order #{orderId}</Text>
+        <Text style={styles.title}>Seu pedido foi feito!</Text>
+        <Text style={styles.orderId}>Pedido #{orderId}</Text>
 
         {/* Card de feedback */}
         <View style={styles.feedbackCard}>
-          <Text style={styles.feedbackTitle}>Tell us your feedback 🙌</Text>
+          <Text style={styles.feedbackTitle}>Nos de um feedback 🙌</Text>
           <Text style={styles.feedbackSubtitle}>
-            How was your experience with this order?
+            Como foi sua experiência com este pedido?
           </Text>
 
           {/* Estrelas */}
@@ -79,7 +79,7 @@ export function OrderReceivedScreen({ navigation, route }: Props) {
           {/* Campo de texto */}
           <TextInput
             style={styles.feedbackInput}
-            placeholder="Write something for us!"
+            placeholder="Escreva algo para nós!"
             placeholderTextColor="#C4C4C4"
             value={feedback}
             onChangeText={setFeedback}
@@ -97,7 +97,7 @@ export function OrderReceivedScreen({ navigation, route }: Props) {
           onPress={() => navigation.navigate('Home')}
           activeOpacity={0.85}
         >
-          <Text style={styles.doneButtonText}>Done</Text>
+          <Text style={styles.doneButtonText}>Finalizar</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

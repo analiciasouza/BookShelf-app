@@ -56,22 +56,22 @@ export function OrderStatusScreen({ navigation, route }: Props) {
       >
         {/* Cabeçalho de agradecimento */}
         <View style={styles.thankSection}>
-          <Text style={styles.thankEmoji}>Thankyou 🧡</Text>
+          <Text style={styles.thankEmoji}>Obrigada 🧡</Text>
           <Text style={styles.thankTitle}>
-            Your order has been{'\n'}placed successfully!
+            Seu pedido foi{'\n'}realizado com sucesso!
           </Text>
-          <Text style={styles.orderId}>Order #{orderId}</Text>
+          <Text style={styles.orderId}>Pedido #{orderId}</Text>
           <Text style={styles.cancelHint}>
-            Do you want to cancel your order?{' '}
+            Deseja cancelar seu pedido?{' '}
             <Text style={styles.cancelLink} onPress={handleCancel}>
-              Cancel
+              Cancelar
             </Text>
           </Text>
         </View>
 
         {/* Order Details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Order Details</Text>
+          <Text style={styles.cardTitle}>Detalhes do Pedido</Text>
 
           <View style={styles.divider} />
 
@@ -82,7 +82,7 @@ export function OrderStatusScreen({ navigation, route }: Props) {
                 {book.title}
               </Text>
               <Text style={styles.itemPrice}>
-                ${(book.price * quantity).toFixed(2)}
+                R${(book.price * quantity).toFixed(2)}
               </Text>
             </View>
           ))}
@@ -91,26 +91,22 @@ export function OrderStatusScreen({ navigation, route }: Props) {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${total.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>R${total.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Shipping</Text>
-            <Text style={styles.summaryValue}>${SHIPPING_FEE.toFixed(2)}</Text>
+            <Text style={styles.summaryLabel}>Frete</Text>
+            <Text style={styles.summaryValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.summaryRow}>
-            <Text style={styles.totalLabel}>Total Payment</Text>
-            <Text style={styles.totalValue}>${totalPayment.toFixed(2)}</Text>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalValue}>R${totalPayment.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Delivery in</Text>
-            <Text style={styles.summaryValue}>10 - 15 mins</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Time</Text>
-            <Text style={styles.summaryValue}>15:24 - 15:39</Text>
+            <Text style={styles.summaryLabel}>Chega</Text>
+            <Text style={styles.summaryValue}> 15/04 a 20/04</Text>
           </View>
         </View>
       </ScrollView>
@@ -122,7 +118,7 @@ export function OrderStatusScreen({ navigation, route }: Props) {
           activeOpacity={0.85}
           onPress={() => navigation.navigate('OrderReceived', { orderId })}
         >
-          <Text style={styles.statusButtonText}>Order Status</Text>
+          <Text style={styles.statusButtonText}>Finalizar</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

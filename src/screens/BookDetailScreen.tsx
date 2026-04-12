@@ -98,7 +98,7 @@ export function BookDetailScreen({ navigation, route }: Props) {
 
         {/* Ver carrinho sem adicionar */}
         <TouchableOpacity style={styles.viewCartWrapper} onPress={() => navigation.navigate('Cart')}>
-          <Text style={styles.viewCartText}>View cart</Text>
+          <Text style={styles.viewCartText}>Ver Carrinho</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

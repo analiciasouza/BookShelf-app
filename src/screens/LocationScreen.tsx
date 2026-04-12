@@ -23,15 +23,9 @@ const PURPLE = '#5C3D99';
 const PURPLE_LIGHT = '#EDE8F7';
 
 interface AddressForm {
-  phone: string;
-  name: string;
-  governorate: string;
   city: string;
   block: string;
   streetName: string;
-  buildingName: string;
-  floor: string;
-  flat: string;
   avenue: string;
 }
 
@@ -93,7 +87,7 @@ function MapStep({
         {/* Detail Address */}
         <View style={styles.detailCard}>
           <View style={styles.detailCardHeader}>
-            <Text style={styles.detailCardTitle}>Detail Address</Text>
+            <Text style={styles.detailCardTitle}>Detalhar Endereço</Text>
             <TouchableOpacity onPress={onUseGPS} style={styles.gpsButton}>
               {loadingGPS ? (
                 <ActivityIndicator size="small" color={PURPLE} />
@@ -138,7 +132,7 @@ function MapStep({
           onPress={onConfirm}
           activeOpacity={0.85}
         >
-          <Text style={styles.confirmButtonText}>Confirmation</Text>
+          <Text style={styles.confirmButtonText}>Confirmar</Text>
         </TouchableOpacity>
 
         {/* Botão secundário — cadastro manual */}
@@ -162,14 +156,14 @@ function SaveAddressAs() {
   const [selected, setSelected] = useState<'home' | 'offices'>('home');
   return (
     <View style={styles.saveAsBlock}>
-      <Text style={styles.saveAsLabel}>Save Address As</Text>
+      <Text style={styles.saveAsLabel}> Salvar Endereço </Text>
       <View style={styles.saveAsChips}>
         <TouchableOpacity
           style={[styles.chip, selected === 'home' && styles.chipActive]}
           onPress={() => setSelected('home')}
         >
           <Text style={[styles.chipText, selected === 'home' && styles.chipTextActive]}>
-            Home
+            Casa
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -177,7 +171,7 @@ function SaveAddressAs() {
           onPress={() => setSelected('offices')}
         >
           <Text style={[styles.chipText, selected === 'offices' && styles.chipTextActive]}>
-            Offices
+           Trabalho
           </Text>
         </TouchableOpacity>
       </View>
@@ -196,15 +190,9 @@ function FormStep({
   loadingGPS: boolean;
 }) {
   const [form, setForm] = useState<AddressForm>({
-    phone: '',
-    name: '',
-    governorate: '',
     city: '',
     block: '',
     streetName: '',
-    buildingName: '',
-    floor: '',
-    flat: '',
     avenue: '',
   });
 
@@ -213,16 +201,10 @@ function FormStep({
   }
 
   const fields: { key: keyof AddressForm; label: string }[] = [
-    { key: 'phone', label: 'Phone' },
-    { key: 'name', label: 'Name' },
-    { key: 'governorate', label: 'Governorate' },
-    { key: 'city', label: 'City' },
-    { key: 'block', label: 'Block' },
-    { key: 'streetName', label: 'Street name /number' },
-    { key: 'buildingName', label: 'Building name/number' },
-    { key: 'floor', label: 'Floor (option)' },
-    { key: 'flat', label: 'Flat (option)' },
-    { key: 'avenue', label: 'Avenue (option)' },
+    { key: 'city', label: 'Cidade' },
+    { key: 'block', label: 'Bairro' },
+    { key: 'streetName', label: 'Nome da rua / número' },
+    { key: 'avenue', label: 'Complemento (opcional)' },
   ];
 
   return (
@@ -243,7 +225,6 @@ function FormStep({
               placeholderTextColor="#C4C4C4"
               value={form[key]}
               onChangeText={v => update(key, v)}
-              keyboardType={key === 'phone' ? 'phone-pad' : 'default'}
               returnKeyType="next"
             />
           </View>
@@ -256,7 +237,7 @@ function FormStep({
           onPress={() => onConfirm(form)}
           activeOpacity={0.85}
         >
-          <Text style={styles.confirmButtonText}>Confirmation</Text>
+          <Text style={styles.confirmButtonText}>Confirmar</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -334,7 +315,7 @@ export function LocationScreen({ navigation }: Props) {
         >
           <Ionicons name="arrow-back-outline" size={22} color="#1A1035" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Location</Text>
+        <Text style={styles.headerTitle}>Localização</Text>
         {step === 'map' ? (
           <TouchableOpacity>
             <Ionicons name="notifications-outline" size={22} color="#1A1035" />
