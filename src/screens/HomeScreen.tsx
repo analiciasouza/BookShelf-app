@@ -20,7 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2;
+const CARD_WIDTH = (width - 56) / 2;
 const FEATURED_WIDTH = width - 40;
 
 const PURPLE      = '#5C3D99';
@@ -185,10 +185,6 @@ export function HomeScreen({ navigation }: Props) {
           <Ionicons name="home" size={22} color={PURPLE} />
           <Text style={styles.tabLabelActive}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Category')}>
-          <Ionicons name="grid-outline" size={22} color="#BBBBBB" />
-          <Text style={styles.tabLabel}>Categoria</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Cart')}>
           <View>
             <Ionicons name="bag-outline" size={22} color="#BBBBBB" />
@@ -337,7 +333,7 @@ const styles = StyleSheet.create({
   card: { width: '100%' },
   coverWrapper: {
     width: '100%',
-    height: CARD_WIDTH * 1.4,
+    height: CARD_WIDTH * 1.45,
     borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: '#E8E4F0',
