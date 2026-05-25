@@ -1,6 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 
 import {
   View,
@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CartItem } from '../@types/type';
+import { CartItem } from '../../@types/type';
 
 const PURPLE = '#5C3D99';
 const PURPLE_LIGHT = '#EDE8F7';

@@ -5,16 +5,16 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Book } from '../@types/type';
 import { CartItem } from '../@types/type';
 
-import { InicialScreen } from '../screens/InicialScreen';
-import { LoginScreen } from '../screens/LoginScreen';
-import  { HomeScreen } from '../screens/HomeScreen';
-import { BookDetailScreen } from '../screens/BookDetailScreen';
-import { ConfirmOrderScreen } from '../screens/ConfirmOrderScreen';
-import { OrderStatusScreen } from '../screens/OrderStatusScreen';
-import { OrderReceivedScreen } from '../screens/OrderReceivedScreen';
-import { CartScreen } from '../screens/CartScreen';
-import { LocationScreen } from '../screens/LocationScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
+import { InicialScreen } from '../screens/HomeScreen/InicialScreen';
+import { LoginScreen } from '../screens/LoginScreen/LoginScreen';
+import { HomeScreen } from '../screens/HomeScreen/HomeScreen';
+import { BookDetailScreen } from '../screens/BookScreen/BookDetailScreen';
+import { ConfirmOrderScreen } from '../screens/OrderScreen/ConfirmOrderScreen';
+import { OrderStatusScreen } from '../screens/OrderScreen/OrderStatusScreen';
+import { OrderReceivedScreen } from '../screens/OrderScreen/OrderReceivedScreen';
+import { CartScreen } from '../screens/CartScreen/CartScreen';
+import { LocationScreen } from '../screens/LocationScreen/LocationScreen';
+import { ProfileScreen } from '../screens/ProfileScreen/ProfileScreen';
 
 export type RootStackParamList = {
   Inicial : undefined 
