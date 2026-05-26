@@ -15,7 +15,6 @@ import { useCart } from '../../context/CartContext';
 import { styles } from './ProfileScreen.styles';
 
 const PURPLE      = '#5C3D99';
-const PURPLE_SOFT = '#EDE8F7';
 const CREAM       = '#FAF8F4';
 const INK         = '#1A1035';
 
