@@ -21,7 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './LocationScreen.styles';
 
 const PURPLE = '#5C3D99';
-const PURPLE_LIGHT = '#EDE8F7';
+
 
 interface AddressForm {
   city: string;
