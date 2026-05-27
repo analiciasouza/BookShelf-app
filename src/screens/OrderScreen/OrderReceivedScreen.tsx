@@ -1,27 +1,11 @@
 import React, { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  StatusBar,
-  ScrollView,
-} from 'react-native';
-
+import { View, Text, StatusBar, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from './OrderReceivedScreen.styles';
 
-interface Props {
-  navigation: any;
-  route: {
-    params: {
-      orderId?: string;
-    };
-  };
-}
+import { styles } from './OrderReceivedScreen.styles';
+import { AHeader, AButton, AInput, AStarRating } from '../../components/accessible';
+
+interface Props { navigation: any; route: { params: { orderId?: string } } }
 
 export function OrderReceivedScreen({ navigation, route }: Props) {
   const { orderId = '2930541' } = route.params ?? {};
@@ -32,73 +16,38 @@ export function OrderReceivedScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Ilustração */}
-        <View style={styles.illustrationBox}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.illustrationBox} accessible accessibilityLabel="Ilustração de caixa de presente com brilhos decorativos">
           <Text style={styles.illustrationEmoji}>🎁</Text>
-          <View style={styles.sparkles}>
-            <Text style={styles.sparkle}>✨</Text>
-            <Text style={[styles.sparkle, { top: 10, right: 10 }]}>✨</Text>
-            <Text style={[styles.sparkle, { bottom: 8, left: 20 }]}>✦</Text>
-          </View>
         </View>
 
-        <Text style={styles.title}>Seu pedido foi feito!</Text>
-        <Text style={styles.orderId}>Pedido #{orderId}</Text>
+        <AHeader level={1} style={styles.title}>Seu pedido foi feito!</AHeader>
+        <Text style={styles.orderId} accessible accessibilityLabel={`Código do pedido: ${orderId}`}>Pedido #{orderId}</Text>
 
-        {/* Card de feedback */}
         <View style={styles.feedbackCard}>
-          <Text style={styles.feedbackTitle}>Nos de um feedback 🙌</Text>
-          <Text style={styles.feedbackSubtitle}>
-            Como foi sua experiência com este pedido?
-          </Text>
+          <AHeader level={2} style={styles.feedbackTitle}>Nos dê um feedback 🙌</AHeader>
+          <Text style={styles.feedbackSubtitle}>Como foi sua experiência com este pedido?</Text>
 
-          {/* Estrelas */}
-          <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity
-                key={star}
-                onPress={() => setRating(star)}
-                activeOpacity={0.7}
-              >
-                <Ionicons
-                  name={star <= rating ? 'star' : 'star-outline'}
-                  size={36}
-                  color={star <= rating ? '#F5A623' : '#E0E0E0'}
-                  style={{ marginHorizontal: 4 }}
-                />
-              </TouchableOpacity>
-            ))}
+          {/* Chamada para o componente estelar acessível */}
+          <View style={{ marginVertical: 12, alignItems: 'center' }}>
+            <AStarRating rating={rating} onRate={setRating} max={5} />
           </View>
 
-          {/* Campo de texto */}
-          <TextInput
-            style={styles.feedbackInput}
+          <AInput
+            label="Comentário adicional"
             placeholder="Escreva algo para nós!"
-            placeholderTextColor="#C4C4C4"
             value={feedback}
             onChangeText={setFeedback}
             multiline
             numberOfLines={3}
-            textAlignVertical="top"
+            optional
           />
         </View>
       </ScrollView>
 
-      {/* Botão Done */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.doneButton}
-          onPress={() => navigation.navigate('Home')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.doneButtonText}>Finalizar</Text>
-        </TouchableOpacity>
+        <AButton label="Finalizar" variant="primary" onPress={() => navigation.navigate('Home')} />
       </View>
     </SafeAreaView>
   );
 }
-
