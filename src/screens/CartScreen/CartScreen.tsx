@@ -96,7 +96,7 @@ export function CartScreen({ navigation }: Props) {
         
         <AButton 
           label="Explorar livros"
-          variant="secondary"
+          variant="primary"
           style={styles.emptyButton}
           onPress={() => navigation.navigate('Home')}
         />
