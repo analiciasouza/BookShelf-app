@@ -1,37 +1,29 @@
 import { api } from './api';
-import { CartItem } from '../@types/type';
 
 export const orderService = {
-
-  async create(
-    items: CartItem[],
-    shippingAddress: object,
-    paymentMethodId: number
-  ) {
-    const response = await api.post('orders/', {
-      items: items.map(i => ({
-        book: i.book.id,
-        quantity: i.quantity,
+  async create(orderData: { items: any[]; total: number; paymentMethod: string }): Promise<any> {
+    const payload = {
+      items: orderData.items.map(item => ({
+        book_id: item.book.id,
+        quantity: item.quantity
       })),
-      shipping_address: shippingAddress,
-      payment_method: paymentMethodId,
-    });
+      total: orderData.total,
+      payment_method: orderData.paymentMethod,
+    };
+
+    const response = await api.post('orders/', payload);
     return response.data;
   },
 
-  async list() {
-    const response = await api.get('orders/');
-    return response.data;
-  },
+  
+  async sendFeedback(feedbackData: { orderId: string; rating: number; comment: string }): Promise<any> {
+    const payload = {
+      order_id: feedbackData.orderId,
+      rating: feedbackData.rating,
+      comment: feedbackData.comment
+    };
 
-  async detail(id: string) {
-    const response = await api.get(`orders/${id}/`);
+    const response = await api.post('feedback/', payload);
     return response.data;
-  },
-
-  async cancel(id: string) {
-    const response = await api.post(`orders/${id}/cancel/`);
-    return response.data;
-  },
-
+  }
 };
