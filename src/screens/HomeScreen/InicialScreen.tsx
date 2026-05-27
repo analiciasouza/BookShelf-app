@@ -12,7 +12,7 @@ const slides = [
   {
     id: '1',
     title: 'Tenha todos os seus\nlivros em um lugar',
-    image: require('../../assets/illustration-home.png'),
+    image: require('../../../assets/illustration-home.png'),
   },
 ];
 
