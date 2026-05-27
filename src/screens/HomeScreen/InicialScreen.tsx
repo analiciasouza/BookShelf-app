@@ -1,27 +1,18 @@
 import React, { useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  Image,
-  FlatList,
-  StatusBar,
-} from 'react-native';
-
+import { View, Text, Dimensions, FlatList, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './InicialScreen.styles';
 
-const { width, height } = Dimensions.get('window');
+// Componentes Acessíveis
+import { AHeader, AButton, AImage } from '../../components/accessible';
 
+const { width } = Dimensions.get('window');
 
-// Dados dos slides (se quiser adicionar mais telas de onboarding no futuro)
 const slides = [
   {
     id: '1',
     title: 'Tenha todos os seus\nlivros em um lugar',
-    image: require('../../assets/illustration-home.png'),
+    image: require('../../../assets/illustration-home.png'),
   },
 ];
 
@@ -54,21 +45,26 @@ export function InicialScreen({ navigation }: Props) {
         style={styles.flatList}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            <Image
+            <AImage
               source={item.image}
               style={styles.illustration}
               resizeMode="contain"
+              alt=""
+              decorative
             />
           </View>
         )}
       />
 
-      
       <View style={styles.bottomContainer}>
-        <Text style={styles.title}>{slides[activeIndex].title}</Text>
+        <AHeader level={1} style={styles.title}>{slides[activeIndex].title}</AHeader>
 
-        
-        <View style={styles.dotsContainer}>
+        {/* Indicadores de página */}
+        <View 
+          style={styles.dotsContainer}
+          accessible
+          accessibilityLabel={`Página ${activeIndex + 1} de ${slides.length}`}
+        >
           {slides.map((_, index) => (
             <View
               key={index}
@@ -77,24 +73,22 @@ export function InicialScreen({ navigation }: Props) {
           ))}
         </View>
 
-        
-        <TouchableOpacity
+        <AButton
+          label="Cadastre-se"
+          hint="Criar uma nova conta no BookShelf"
+          variant="primary"
           style={styles.buttonPrimary}
           onPress={() => navigation.navigate('Register')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.buttonPrimaryText}>Cadastre-se</Text>
-        </TouchableOpacity>
+        />
 
-        <TouchableOpacity
+        <AButton
+          label="Entrar"
+          hint="Fazer login com uma conta existente"
+          variant="secondary"
           style={styles.buttonSecondary}
           onPress={() => navigation.navigate('Login')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.buttonSecondaryText}>Entrar</Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );
 }
-

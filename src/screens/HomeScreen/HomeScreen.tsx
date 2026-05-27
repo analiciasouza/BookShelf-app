@@ -1,34 +1,19 @@
 import React, { useState } from 'react';
+import { View, Text, ScrollView, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+
 import { useBooks } from '../../hooks/useBooks';
 import { useCart } from '../../context/CartContext';
 import { Book } from '../../@types/type';
 import { styles } from './HomeScreen.styles';
 
-import {
-  View,
-  Text,
-  FlatList,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  Dimensions,
-  TextInput,
-} from 'react-native';
+// Componentes Acessíveis
+import { AHeader, AIconButton, AImage, ACard, AInput } from '../../components/accessible';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 56) / 2;
-const FEATURED_WIDTH = width - 40;
-
-const PURPLE      = '#5C3D99';
-const PURPLE_MID  = '#7B5BC4';
-const PURPLE_SOFT = '#EDE8F7';
-const PURPLE_DARK = '#2E1A6E';
-const CREAM       = '#FAF8F4';
-const INK         = '#1A1035';
+const PURPLE = '#5C3D99';
+const CREAM = '#FAF8F4';
+const INK = '#1A1035';
 
 interface Props {
   navigation: any;
@@ -38,7 +23,6 @@ export function HomeScreen({ navigation }: Props) {
   const { books, isLoading } = useBooks();
   const { cart } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
 
   const cartCount = cart.items.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -52,38 +36,38 @@ export function HomeScreen({ navigation }: Props) {
   const featured = books[0];
   const rest = books.slice(1);
 
-  // ─── Card de livro no grid ──────────────────────────────────────
-  function renderBook({ item, index }: { item: Book; index: number }) {
+  function renderBook({ item }: { item: Book }) {
     return (
-      <TouchableOpacity
+      <ACard
         style={styles.card}
-        activeOpacity={0.85}
+        label={`Livro: ${item.title}. Autor: ${item.author}. Preço: R$ ${item.price.toFixed(2)}.`}
+        hint="Toque duas vezes para ler os detalhes deste livro"
         onPress={() => navigation.navigate('BookDetail', { book: item })}
       >
         <View style={styles.coverWrapper}>
-          <Image source={{ uri: item.coverImage }} style={styles.cover} resizeMode="cover" />
-          <View style={styles.priceTag}>
+          <AImage source={{ uri: item.coverImage }} style={styles.cover} resizeMode="cover" alt="" decorative />
+          <View style={styles.priceTag} importantForAccessibility="no-hide-descendants">
             <Text style={styles.priceTagText}>R${item.price.toFixed(2)}</Text>
           </View>
         </View>
-        <Text style={styles.bookTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.bookAuthor} numberOfLines={1}>{item.author}</Text>
-      </TouchableOpacity>
+        <Text style={styles.bookTitle} numberOfLines={2} importantForAccessibility="no-hide-descendants">{item.title}</Text>
+        <Text style={styles.bookAuthor} numberOfLines={1} importantForAccessibility="no-hide-descendants">{item.author}</Text>
+      </ACard>
     );
   }
 
-  // ─── Card destaque ──────────────────────────────────────────────
   function FeaturedCard() {
     if (!featured) return null;
     return (
-      <TouchableOpacity
+      <ACard
         style={styles.featured}
-        activeOpacity={0.9}
+        label={`Livro em Destaque: ${featured.title}. Autor: ${featured.author}. Preço: R$ ${featured.price.toFixed(2)}.`}
+        hint="Toque duas vezes para ler os detalhes deste destaque"
         onPress={() => navigation.navigate('BookDetail', { book: featured })}
       >
-        <Image source={{ uri: featured.coverImage }} style={styles.featuredBg} resizeMode="cover" />
+        <AImage source={{ uri: featured.coverImage }} style={styles.featuredBg} resizeMode="cover" alt="" decorative />
         <View style={styles.featuredOverlay} />
-        <View style={styles.featuredContent}>
+        <View style={styles.featuredContent} importantForAccessibility="no-hide-descendants">
           <View style={styles.featuredBadge}>
             <Text style={styles.featuredBadgeText}>⭐ Destaque</Text>
           </View>
@@ -93,11 +77,10 @@ export function HomeScreen({ navigation }: Props) {
             <Text style={styles.featuredPrice}>R${featured.price.toFixed(2)}</Text>
             <View style={styles.featuredBtn}>
               <Text style={styles.featuredBtnText}>Ver livro</Text>
-              <Ionicons name="arrow-forward" size={14} color="#fff" />
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </ACard>
     );
   }
 
@@ -105,15 +88,17 @@ export function HomeScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={CREAM} />
 
-      {/* ── Header ── */}
+      {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.headerGreeting}>Olá, leitora 👋</Text>
-          <Text style={styles.headerSub}>O que vamos ler hoje?</Text>
+          <AHeader level={1} style={styles.headerSub}>O que vamos ler hoje?</AHeader>
         </View>
-        <TouchableOpacity
+        <AIconButton
           style={styles.cartButton}
           onPress={() => navigation.navigate('Cart')}
+          label="Ir para o carrinho de compras"
+          hint={`${cartCount} itens na sacola`}
         >
           <Ionicons name="bag-outline" size={22} color={INK} />
           {cartCount > 0 && (
@@ -121,39 +106,26 @@ export function HomeScreen({ navigation }: Props) {
               <Text style={styles.cartBadgeText}>{cartCount}</Text>
             </View>
           )}
-        </TouchableOpacity>
+        </AIconButton>
       </View>
 
-      {/* ── Busca ── */}
+      {/* Busca */}
       <View style={styles.searchWrapper}>
-        <View style={[styles.searchBar, searchFocused && styles.searchBarFocused]}>
-          <Ionicons name="search-outline" size={18} color={searchFocused ? PURPLE : '#9E9E9E'} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar título ou autor..."
-            placeholderTextColor="#BBBBBB"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            returnKeyType="search"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color="#BBBBBB" />
-            </TouchableOpacity>
-          )}
-        </View>
+        <AInput
+          label="Buscar livros"
+          placeholder="Buscar título ou autor..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          optional
+        />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-
-        {/* ── Destaque (só aparece sem busca ativa) ── */}
         {!searchQuery && (
           <>
             <FeaturedCard />
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Catálogo</Text>
+              <AHeader level={2} style={styles.sectionTitle}>Catálogo</AHeader>
               <Text style={styles.sectionCount}>{rest.length} livros</Text>
             </View>
           </>
@@ -161,31 +133,30 @@ export function HomeScreen({ navigation }: Props) {
 
         {searchQuery && (
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
+            <AHeader level={2} style={styles.sectionTitle}>
               {filtered.length > 0 ? `${filtered.length} resultado(s)` : 'Nenhum resultado'}
-            </Text>
+            </AHeader>
           </View>
         )}
 
-        {/* ── Grid ── */}
+        {/* Grid */}
         <View style={styles.grid}>
           {(searchQuery ? filtered : rest).map((item, index) => (
             <View key={item.id} style={index % 2 === 0 ? styles.gridLeft : styles.gridRight}>
-              {renderBook({ item, index })}
+              {renderBook({ item })}
             </View>
           ))}
         </View>
-
       </ScrollView>
 
-      {/* ── Tab Bar ── */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Home')}>
-          <View style={styles.tabActiveIndicator} />
+      {/* Tab Bar */}
+      <View style={styles.tabBar} accessibilityRole="tablist">
+        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Home')} label="Home, aba 1 de 3" accessibilityState={{ selected: true }}>
           <Ionicons name="home" size={22} color={PURPLE} />
           <Text style={styles.tabLabelActive}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Cart')}>
+        </AIconButton>
+        
+        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Cart')} label="Carrinho, aba 2 de 3" accessibilityState={{ selected: false }}>
           <View>
             <Ionicons name="bag-outline" size={22} color="#BBBBBB" />
             {cartCount > 0 && (
@@ -195,13 +166,13 @@ export function HomeScreen({ navigation }: Props) {
             )}
           </View>
           <Text style={styles.tabLabel}>Carrinho</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Profile')}>
+        </AIconButton>
+        
+        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Profile')} label="Perfil, aba 3 de 3" accessibilityState={{ selected: false }}>
           <Ionicons name="person-outline" size={22} color="#BBBBBB" />
           <Text style={styles.tabLabel}>Perfil</Text>
-        </TouchableOpacity>
+        </AIconButton>
       </View>
     </SafeAreaView>
   );
 }
-
