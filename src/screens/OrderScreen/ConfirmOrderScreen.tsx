@@ -1,23 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { CartItem } from '../../@types/type';
-
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  StatusBar,
-  ScrollView,
-  Modal,
-  Animated,
-  TouchableWithoutFeedback,
-  Dimensions,
-} from 'react-native';
-
+import { View, Text, StatusBar, ScrollView, Modal, Animated, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+import { CartItem } from '../../@types/type';
 import { styles, sheetStyles } from './ConfirmOrderScreen.styles';
+import { AHeader, AButton, AIconButton, AImage, ACard } from '../../components/accessible';
 
 const PURPLE = '#5C3D99';
 const SHIPPING_FEE = 2.0;
@@ -25,61 +13,35 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 type PaymentMethod = 'knet' | 'credit_card' | null;
 
-interface Props {
-  navigation: any;
-  route: {
-    params: {
-      items: CartItem[];
-      total: number;
-    };
-  };
-}
+interface Props { navigation: any; route: { params: { items: CartItem[]; total: number } } }
 
-
-function BottomSheet({
-  visible,
-  onClose,
-  children,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+function BottomSheet({ visible, onClose, title, children }: { visible: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
   React.useEffect(() => {
     if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        bounciness: 4,
-      }).start();
+      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, bounciness: 4 }).start();
     } else {
-      Animated.timing(slideAnim, {
-        toValue: SCREEN_HEIGHT,
-        duration: 220,
-        useNativeDriver: true,
-      }).start();
+      Animated.timing(slideAnim, { toValue: SCREEN_HEIGHT, duration: 220, useNativeDriver: true }).start();
     }
   }, [visible]);
 
   if (!visible) return null;
 
   return (
-    <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
+    <Modal transparent visible={visible} onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={sheetStyles.overlay} />
       </TouchableWithoutFeedback>
-      <Animated.View
-        style={[sheetStyles.sheet, { transform: [{ translateY: slideAnim }] }]}
-      >
+      <Animated.View style={[sheetStyles.sheet, { transform: [{ translateY: slideAnim }] }]}>
         <View style={sheetStyles.handle} />
+        <AHeader level={2} style={sheetStyles.title}>{title}</AHeader>
         {children}
+        <AButton label="Fechar painel" variant="ghost" onPress={onClose} style={{ marginTop: 16 }} />
       </Animated.View>
     </Modal>
   );
 }
-
 
 export function ConfirmOrderScreen({ navigation, route }: Props) {
   const { items, total } = route.params;
@@ -88,187 +50,77 @@ export function ConfirmOrderScreen({ navigation, route }: Props) {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
 
   const totalPayment = total + SHIPPING_FEE;
-
-  const paymentLabel =
-    selectedPayment === 'knet'
-      ? 'KNET'
-      : selectedPayment === 'credit_card'
-      ? 'Cartão de Crédito'
-      : 'Escolha uma forma de pagamento';
+  const paymentLabel = selectedPayment === 'knet' ? 'KNET' : selectedPayment === 'credit_card' ? 'Cartão de Crédito' : 'Escolha uma forma de pagamento';
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back-outline" size={22} color="#1A1035" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Confirmar Pedido</Text>
-        <TouchableOpacity>
-          <Ionicons name="notifications-outline" size={22} color="#1A1035" />
-        </TouchableOpacity>
+        <AIconButton onPress={() => navigation.goBack()} label="Voltar"><Ionicons name="arrow-back-outline" size={22} color="#1A1035" /></AIconButton>
+        <AHeader level={1} style={styles.headerTitle}>Confirmar Pedido</AHeader>
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-
-        {/* Address */}
+        
+        {/* Seção Endereço */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Endereço</Text>
-          <TouchableOpacity style={styles.addressRow} activeOpacity={0.8} onPress={() => navigation.navigate('Location')}>
-          <View style={styles.addressRow}>
-            <View style={styles.addressIcon}>
-              <Ionicons name="location-outline" size={20} color={PURPLE} />
-            </View>
+          <AHeader level={2} style={styles.sectionTitle}>Endereço</AHeader>
+          <ACard style={styles.addressRow} label="Endereço de entrega atual: Rua Dumbo 123, Maceió Alagoas." hint="Toque duplo para alterar o endereço" onPress={() => navigation.navigate('Location')}>
+            <Ionicons name="location-outline" size={20} color={PURPLE} />
             <View style={styles.addressInfo}>
               <Text style={styles.addressTitle}>Rua Dumbo</Text>
-              <Text style={styles.addressSubtitle}>
-                Rua Dumbo 123{'\n'}Maceió, Alagoas
-              </Text>
+              <Text style={styles.addressSubtitle}>Rua Dumbo 123{'\n'}Maceió, Alagoas</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
-          </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.changeButton} onPress={() => navigation.navigate('Location')}>
-            <Text style={styles.changeText}>Mudar</Text>
-          </TouchableOpacity>
+          </ACard>
         </View>
 
-        {/* Summary */}
+        {/* Seção Resumo */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resumo</Text>
-
+          <AHeader level={2} style={styles.sectionTitle}>Resumo do Pedido</AHeader>
           {items.map(({ book, quantity }) => (
-            <View key={book.id} style={styles.bookRow}>
-              <Image source={{ uri: book.coverImage }} style={styles.bookCover} resizeMode="cover" />
+            <View key={book.id} style={styles.bookRow} accessible accessibilityLabel={`${quantity} unidades de ${book.title}.`}>
+              <AImage source={{ uri: book.coverImage }} style={styles.bookCover} resizeMode="cover" alt="" decorative />
               <View style={styles.bookInfo}>
-                <Text style={styles.bookTitle} numberOfLines={2}>{book.title}</Text>
+                <Text style={styles.bookTitle}>{book.title}</Text>
                 <Text style={styles.bookAuthor}>Autor: {book.author}</Text>
-                {quantity > 1 && <Text style={styles.bookQty}>Qtd: {quantity}</Text>}
               </View>
             </View>
           ))}
 
-          <View style={styles.divider} />
-
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Preço</Text>
-            <Text style={styles.priceValue}>R${total.toFixed(2)}</Text>
-          </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Frete</Text>
-            <Text style={styles.priceValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
-          </View>
-          <View style={[styles.priceRow, { marginTop: 4 }]}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>R${totalPayment.toFixed(2)}</Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.seeDetails}
-            onPress={() => setShowDetailsSheet(true)}
-          >
-            <Text style={styles.seeDetailsText}>Ver detalhes:</Text>
-            <Ionicons name="chevron-forward-outline" size={16} color={PURPLE} />
-          </TouchableOpacity>
+          <AButton label="Ver mais detalhes de valores" variant="secondary" style={{ marginTop: 12 }} onPress={() => setShowDetailsSheet(true)} />
         </View>
 
-        {/* Payment */}
+        {/* Seção Pagamento */}
         <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.paymentRow}
-            onPress={() => setShowPaymentSheet(true)}
-          >
-            <View style={styles.paymentIcon}>
-              <Ionicons name="card-outline" size={20} color={PURPLE} />
-            </View>
+          <ACard style={styles.paymentRow} label={`Forma de pagamento ativa: ${paymentLabel}`} hint="Toque duas vezes para alterar a forma de pagamento" onPress={() => setShowPaymentSheet(true)}>
+            <Ionicons name="card-outline" size={20} color={PURPLE} />
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>Pagamento</Text>
               <Text style={styles.paymentSubtitle}>{paymentLabel}</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
-          </TouchableOpacity>
+          </ACard>
         </View>
-
       </ScrollView>
 
-      {/* Order Button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.orderButton} activeOpacity={0.85} onPress={() => navigation.navigate('OrderStatus', { items, total })}>
-          <Text style={styles.orderButtonText}>Confirmar Pedido</Text>
-        </TouchableOpacity>
+        <AButton label="Confirmar Pedido e Finalizar" variant="primary" onPress={() => navigation.navigate('OrderStatus', { items, total })} disabled={!selectedPayment} />
       </View>
 
-      {/* ── Bottom Sheet 6.2: Payment Details ── */}
-      <BottomSheet visible={showDetailsSheet} onClose={() => setShowDetailsSheet(false)}>
-        <Text style={sheetStyles.title}>Detalhes Pagamento</Text>
-
-        {/* Bloco de preço dos itens */}
-        <View style={sheetStyles.detailBlock}>
-          <View style={sheetStyles.detailHeaderRow}>
-            <Text style={sheetStyles.detailHeaderLabel}>Preço</Text>
-            <Text style={sheetStyles.detailHeaderValue}>R${total.toFixed(2)}</Text>
-          </View>
-          {items.map(({ book, quantity }) => (
-            <View key={book.id} style={sheetStyles.detailRow}>
-              <Text style={sheetStyles.detailName} numberOfLines={1}>{book.title}</Text>
-              <Text style={sheetStyles.detailItemValue}>
-                R${(book.price * quantity).toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={sheetStyles.separator} />
-
-        <View style={sheetStyles.detailRow}>
-          <Text style={sheetStyles.detailName}>Frete</Text>
-          <Text style={sheetStyles.detailItemValue}>R${SHIPPING_FEE.toFixed(2)}</Text>
-        </View>
-
-        <View style={sheetStyles.separator} />
-
-        <View style={sheetStyles.detailRow}>
-          <Text style={sheetStyles.detailTotalLabel}>Total:</Text>
-          <Text style={sheetStyles.detailTotalValue}>R${totalPayment.toFixed(2)}</Text>
-        </View>
+      <BottomSheet visible={showDetailsSheet} onClose={() => setShowDetailsSheet(false)} title="Detalhes do Pagamento">
+        <Text style={{ color: '#1A1035', marginVertical: 8 }}>Subtotal: R$ {total.toFixed(2)}</Text>
+        <Text style={{ color: '#1A1035', marginVertical: 8 }}>Frete: R$ {SHIPPING_FEE.toFixed(2)}</Text>
+        <View style={styles.divider} />
+        <AHeader level={3}>{`Total Geral: R$ ${totalPayment.toFixed(2)}`}</AHeader>
       </BottomSheet>
 
-      {/* ── Bottom Sheet 6.3: Your Payments ── */}
-      <BottomSheet visible={showPaymentSheet} onClose={() => setShowPaymentSheet(false)}>
-        <Text style={sheetStyles.title}>Seus pagamentos</Text>
-
-        <TouchableOpacity
-          style={sheetStyles.paymentOption}
-          onPress={() => {
-            setSelectedPayment('knet');
-            setShowPaymentSheet(false);
-          }}
-        >
-          <View style={[sheetStyles.paymentOptionIcon, { backgroundColor: '#E8F4FD' }]}>
-            <Ionicons name="card" size={22} color="#1B6CA8" />
-          </View>
-          <Text style={sheetStyles.paymentOptionLabel}>KNET</Text>
-          <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={sheetStyles.paymentOption}
-          onPress={() => {
-            setSelectedPayment('credit_card');
-            setShowPaymentSheet(false);
-          }}
-        >
-          <View style={[sheetStyles.paymentOptionIcon, { backgroundColor: '#FFF3E0' }]}>
-            <Ionicons name="card-outline" size={22} color="#E65100" />
-          </View>
-          <Text style={sheetStyles.paymentOptionLabel}>Cartão de Crédito</Text>
-          <Ionicons name="chevron-forward-outline" size={18} color="#9E9E9E" />
-        </TouchableOpacity>
+      <BottomSheet visible={showPaymentSheet} onClose={() => setShowPaymentSheet(false)} title="Seus pagamentos">
+        <AButton label="Pagar com KNET" variant="secondary" style={{ marginBottom: 12 }} onPress={() => { setSelectedPayment('knet'); setShowPaymentSheet(false); }} />
+        <AButton label="Pagar com Cartão de Crédito" variant="secondary" onPress={() => { setSelectedPayment('credit_card'); setShowPaymentSheet(false); }} />
       </BottomSheet>
-
     </SafeAreaView>
   );
 }
-

@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-} from 'react-native';
-
-import { Book } from '../../@types/type';
+import { View, Text, StatusBar, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+
+import { Book } from '../../@types/type';
 import { useCart } from '../../context/CartContext';
 import { styles } from './BookScreen.styles';
 
+// Componentes Acessíveis
+import { AHeader, AButton, AIconButton, AImage } from '../../components/accessible';
 
 interface Props {
   navigation: any;
@@ -30,12 +25,11 @@ export function BookDetailScreen({ navigation, route }: Props) {
   const { handleAddToCart } = useCart();
 
   function increment() {
-   setQuantity(q => q + 1);
+    setQuantity(q => q + 1);
   }
 
   function decrement() {
-    if (quantity > 1)
-      setQuantity(q => q - 1);
+    if (quantity > 1) setQuantity(q => q - 1);
   }
 
   function handleBuy() {
@@ -48,25 +42,32 @@ export function BookDetailScreen({ navigation, route }: Props) {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Botão voltar */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <AIconButton 
+        style={styles.backButton} 
+        onPress={() => navigation.goBack()}
+        label="Voltar"
+        hint="Volta para a tela anterior"
+      >
         <Ionicons name="arrow-back" size={24} color="#1A1035" />
-      </TouchableOpacity>
+      </AIconButton>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Capa do livro */}
         <View style={styles.coverWrapper}>
-          <Image
+          <AImage
             source={{ uri: book.coverImage }}
             style={styles.cover}
             resizeMode="cover"
+            alt={`Capa do livro ${book.title}`}
           />
         </View>
 
         {/* Conteúdo */}
         <View style={styles.content}>
-          <Text style={styles.title}>{book.title}</Text>
+          <AHeader level={1} style={styles.title}>{book.title}</AHeader>
           <Text style={styles.author}>{book.author}</Text>
-          <Text style={styles.descriptionLabel}>Resumo do Livro:</Text>
+          
+          <AHeader level={3} style={styles.descriptionLabel}>Resumo do Livro:</AHeader>
           <Text style={styles.description}>{book.description}</Text>
         </View>
       </ScrollView>
@@ -76,31 +77,61 @@ export function BookDetailScreen({ navigation, route }: Props) {
         <View style={styles.purchaseRow}>
           {/* Contador */}
           <View style={styles.quantityWrapper}>
-            <TouchableOpacity style={styles.quantityBtn} onPress={decrement}>
+            <AIconButton 
+              style={styles.quantityBtn} 
+              onPress={decrement}
+              label="Diminuir quantidade"
+              hint={`Quantidade atual: ${quantity}`}
+              disabled={quantity <= 1}
+            >
               <Text style={styles.quantityBtnText}>−</Text>
-            </TouchableOpacity>
-            <Text style={styles.quantityValue}>{quantity}</Text>
-            <TouchableOpacity style={styles.quantityBtn} onPress={increment}>
+            </AIconButton>
+            
+            <Text 
+              style={styles.quantityValue}
+              accessible
+              accessibilityLabel={`${quantity} unidades selecionadas`}
+            >
+              {quantity}
+            </Text>
+            
+            <AIconButton 
+              style={styles.quantityBtn} 
+              onPress={increment}
+              label="Aumentar quantidade"
+              hint={`Quantidade atual: ${quantity}`}
+            >
               <Text style={styles.quantityBtnText}>+</Text>
-            </TouchableOpacity>
+            </AIconButton>
           </View>
 
-          
-          <Text style={styles.price}>R${(book.price * quantity).toFixed(2)}</Text>
+          <Text 
+            style={styles.price}
+            accessible
+            accessibilityLabel={`Preço total: R$ ${(book.price * quantity).toFixed(2)}`}
+          >
+            R${(book.price * quantity).toFixed(2)}
+          </Text>
         </View>
 
-         {/* Comprar → adiciona ao carrinho e navega */}
-        <TouchableOpacity style={styles.buyButton} onPress={handleBuy} activeOpacity={0.85}>
-          <Text style={styles.buyButtonText}>Comprar</Text>
-        </TouchableOpacity>
+        {/* Comprar → adiciona ao carrinho e navega */}
+        <AButton 
+          label="Comprar"
+          hint="Adiciona o livro ao carrinho e prossegue para a confirmação"
+          variant="primary"
+          style={styles.buyButton}
+          onPress={handleBuy}
+        />
 
         {/* Ver carrinho sem adicionar */}
-        <TouchableOpacity style={styles.viewCartWrapper} onPress={() => navigation.navigate('Cart')}>
-          <Text style={styles.viewCartText}>Ver Carrinho</Text>
-        </TouchableOpacity>
+        <AButton 
+          label="Ver Carrinho"
+          hint="Ir direto para a visualização do carrinho de compras"
+          variant="ghost"
+          style={styles.viewCartWrapper}
+          onPress={() => navigation.navigate('Cart')}
+        />
       </View>
     </SafeAreaView>
   );
 }
-
-
