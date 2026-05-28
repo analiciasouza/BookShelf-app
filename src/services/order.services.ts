@@ -1,29 +1,36 @@
 import { api } from './api';
 
 export const orderService = {
-  async create(orderData: { items: any[]; total: number; paymentMethod: string }): Promise<any> {
-    const payload = {
-      items: orderData.items.map(item => ({
-        book_id: item.book.id,
-        quantity: item.quantity
-      })),
-      total: orderData.total,
-      payment_method: orderData.paymentMethod,
-    };
 
-    const response = await api.post('orders/', payload);
+ 
+  async create(data: {
+    items: { book: number; quantity: number }[];
+    shipping_address: object;
+    payment_method: number;
+  }) {
+    const response = await api.post('orders/', data);
     return response.data;
   },
 
-  
-  async sendFeedback(feedbackData: { orderId: string; rating: number; comment: string }): Promise<any> {
-    const payload = {
-      order_id: feedbackData.orderId,
-      rating: feedbackData.rating,
-      comment: feedbackData.comment
-    };
-
-    const response = await api.post('feedback/', payload);
+  async list() {
+    const response = await api.get('orders/');
     return response.data;
-  }
+  },
+
+  async detail(orderId: string) {
+    const response = await api.get(`orders/${orderId}/`);
+    return response.data;
+  },
+
+  // POST /orders/{id}/cancel/
+  async cancel(orderId: string) {
+    const response = await api.post(`orders/${orderId}/cancel/`);
+    return response.data;
+  },
+
+  // POST /orders/{id}/feedback/
+  async sendFeedback(orderId: string, rating: number, comment: string) {
+    const response = await api.post(`orders/${orderId}/feedback/`, { rating, comment });
+    return response.data;
+  },
 };

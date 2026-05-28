@@ -7,46 +7,42 @@ import MapView, { Marker, Region } from 'react-native-maps';
 
 import { styles } from './LocationScreen.styles';
 import { AHeader, AButton, AIconButton, AInput } from '../../components/accessible';
+import { addressService } from '../../services/address.services';
 
 const PURPLE = '#5C3D99';
 
 interface AddressForm {
+  street_address: string; // ← campo real do model
   city: string;
-  block: string;
-  streetName: string;
-  avenue: string;
+  state: string;
+  postal_code: string;
+  country: string;
 }
 
 interface Props {
   navigation: any;
 }
 
-function MapStep({
-  onConfirm,
-  onManual,
-  onUseGPS,
-  detectedAddress,
-  region,
-  loadingGPS,
-}: {
-  onConfirm: () => void;
-  onManual: () => void;
-  onUseGPS: () => void;
-  detectedAddress: string;
-  region: Region | null;
-  loadingGPS: boolean;
+function MapStep({ onConfirm, onManual, onUseGPS, detectedAddress, region, loadingGPS }: {
+  onConfirm: () => void; onManual: () => void; onUseGPS: () => void;
+  detectedAddress: string; region: Region | null; loadingGPS: boolean;
 }) {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.mapContainer} accessible accessibilityLabel="Visualização do mapa da sua região de entrega">
+        <View style={styles.mapContainer} accessible accessibilityLabel="Visualização do mapa da sua localização">
           {region ? (
             <MapView style={styles.map} region={region} scrollEnabled={false} zoomEnabled={false}>
-              <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
+              <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
+                <View style={styles.markerOuter}><View style={styles.markerInner} /></View>
+              </Marker>
             </MapView>
           ) : (
             <View style={[styles.map, styles.mapPlaceholder]}>
-              {loadingGPS ? <ActivityIndicator color={PURPLE} size="large" /> : <Ionicons name="map-outline" size={48} color="#C0B8D8" />}
+              {loadingGPS
+                ? <ActivityIndicator color={PURPLE} size="large" />
+                : <Ionicons name="map-outline" size={48} color="#C0B8D8" />
+              }
             </View>
           )}
         </View>
@@ -54,13 +50,24 @@ function MapStep({
         <View style={styles.detailCard}>
           <View style={styles.detailCardHeader}>
             <AHeader level={2} style={styles.detailCardTitle}>Detalhar Endereço</AHeader>
-            <AIconButton onPress={onUseGPS} label="Detectar localização pelo GPS atual">
-              <Ionicons name="locate-outline" size={20} color={PURPLE} />
+            <AIconButton onPress={onUseGPS} label="Detectar localização pelo GPS">
+              {loadingGPS
+                ? <ActivityIndicator size="small" color={PURPLE} />
+                : <Ionicons name="locate-outline" size={20} color={PURPLE} />
+              }
             </AIconButton>
           </View>
 
-          <View style={styles.addressRow} accessible accessibilityLabel={`Endereço detectado: ${detectedAddress || 'Nenhum endereço detectado ainda.'}`}>
-            <View style={styles.locationDot}><Ionicons name="location" size={16} color={PURPLE} /></View>
+          <View
+            style={styles.addressRow}
+            accessible
+            accessibilityLabel={detectedAddress
+              ? `Endereço detectado: ${detectedAddress}`
+              : 'Nenhum endereço detectado ainda'}
+          >
+            <View style={styles.locationDot}>
+              <Ionicons name="location" size={16} color={PURPLE} />
+            </View>
             <View style={styles.addressTextBlock}>
               {detectedAddress ? (
                 <>
@@ -80,8 +87,19 @@ function MapStep({
       </ScrollView>
 
       <View style={styles.footer}>
-        <AButton label="Confirmar" variant="primary" style={styles.confirmButton} onPress={onConfirm} disabled={!detectedAddress || loadingGPS} />
-        <AButton label="Cadastrar endereço manualmente" variant="secondary" style={styles.manualButton} onPress={onManual} />
+        <AButton
+          label="Confirmar"
+          variant="primary"
+          style={styles.confirmButton}
+          onPress={onConfirm}
+          disabled={!detectedAddress || loadingGPS}
+        />
+        <AButton
+          label="Cadastrar endereço manualmente"
+          variant="ghost"
+          style={styles.manualButton}
+          onPress={onManual}
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -93,17 +111,17 @@ function SaveAddressAs() {
     <View style={styles.saveAsBlock}>
       <Text style={styles.saveAsLabel}>Salvar Endereço Como</Text>
       <View style={styles.saveAsChips} accessibilityRole="radiogroup">
-        <AButton 
-          label="Casa" 
-          variant={selected === 'home' ? 'primary' : 'secondary'} 
-          style={[styles.chip, { minHeight: 40 }]} 
+        <AButton
+          label="Casa"
+          variant={selected === 'home' ? 'primary' : 'secondary'}
+          style={[styles.chip, { minHeight: 40 }]}
           onPress={() => setSelected('home')}
           accessibilityState={{ checked: selected === 'home' }}
         />
-        <AButton 
-          label="Trabalho" 
-          variant={selected === 'offices' ? 'primary' : 'secondary'} 
-          style={[styles.chip, { minHeight: 40, marginLeft: 8 }]} 
+        <AButton
+          label="Trabalho"
+          variant={selected === 'offices' ? 'primary' : 'secondary'}
+          style={[styles.chip, { minHeight: 40, marginLeft: 8 }]}
           onPress={() => setSelected('offices')}
           accessibilityState={{ checked: selected === 'offices' }}
         />
@@ -113,23 +131,53 @@ function SaveAddressAs() {
 }
 
 function FormStep({ onConfirm }: { onConfirm: (form: AddressForm) => void }) {
-  const [form, setForm] = useState<AddressForm>({ city: '', block: '', streetName: '', avenue: '' });
+  const [form, setForm] = useState<AddressForm>({
+    street_address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'Brasil',
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   function update(field: keyof AddressForm, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
+  async function handleSave() {
+    if (!form.street_address || !form.city || !form.state || !form.postal_code) {
+      Alert.alert('Atenção', 'Preencha os campos obrigatórios.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await addressService.create(form); // POST /addresses/ com campos corretos
+      onConfirm(form);
+    } catch {
+      Alert.alert('Erro', 'Não foi possível salvar o endereço.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formScrollContent}>
-        <AInput label="Cidade" placeholder="Digite sua cidade" value={form.city} onChangeText={v => update('city', v)} />
-        <AInput label="Bairro" placeholder="Digite seu bairro" value={form.block} onChangeText={v => update('block', v)} />
-        <AInput label="Nome da rua / número" placeholder="Ex: Rua das Flores, 123" value={form.streetName} onChangeText={v => update('streetName', v)} />
-        <AInput label="Complemento" placeholder="Ex: Apto 42 (opcional)" value={form.avenue} onChangeText={v => update('avenue', v)} optional />
+        <AInput label="Rua e número" placeholder="Ex: Rua das Flores, 123" value={form.street_address} onChangeText={v => update('street_address', v)} />
+        <AInput label="Cidade" placeholder="Ex: Maceió" value={form.city} onChangeText={v => update('city', v)} />
+        <AInput label="Estado" placeholder="Ex: AL" value={form.state} onChangeText={v => update('state', v)} />
+        <AInput label="CEP" placeholder="Ex: 57000-000" value={form.postal_code} onChangeText={v => update('postal_code', v)} keyboardType="numeric" />
+        <AInput label="País" placeholder="Ex: Brasil" value={form.country} onChangeText={v => update('country', v)} optional />
       </ScrollView>
 
       <View style={styles.footer}>
-        <AButton label="Confirmar Endereço" variant="primary" style={styles.confirmButton} onPress={() => onConfirm(form)} />
+        <AButton
+          label="Salvar endereço"
+          variant="primary"
+          style={styles.confirmButton}
+          onPress={handleSave}
+          loading={isLoading}
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -179,9 +227,16 @@ export function LocationScreen({ navigation }: Props) {
       </View>
 
       {step === 'map' ? (
-        <MapStep onConfirm={() => setStep('form')} onManual={() => setStep('form')} onUseGPS={handleUseGPS} detectedAddress={detectedAddress} region={region} loadingGPS={loadingGPS} />
+        <MapStep
+          onConfirm={() => setStep('form')}
+          onManual={() => setStep('form')}
+          onUseGPS={handleUseGPS}
+          detectedAddress={detectedAddress}
+          region={region}
+          loadingGPS={loadingGPS}
+        />
       ) : (
-        <FormStep onConfirm={(form) => navigation.goBack()} />
+        <FormStep onConfirm={() => navigation.goBack()} />
       )}
     </SafeAreaView>
   );

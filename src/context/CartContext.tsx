@@ -1,10 +1,31 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Cart, Book } from '../@types/type';
+
+type Book = {
+  id: number;
+  title: string;
+  author: string;
+  price: string; // vem como string do Django DecimalField
+  cover_image: string | null;
+  coverImage?: string; // alias mapeado pelo bookService
+  description: string | null;
+  genre: string;
+  status: string;
+};
+
+type CartItem = {
+  book: Book;
+  quantity: number;
+};
+
+type Cart = {
+  items: CartItem[];
+  total: number;
+};
 
 interface CartContextData {
   cart: Cart;
   handleAddToCart: (book: Book, quantity?: number) => void;
-  handleRemoveFromCart: (bookId: string) => void;
+  handleRemoveFromCart: (bookId: number) => void;
   handleClearCart: () => void;
 }
 
@@ -23,15 +44,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               : i
           )
         : [...prev.items, { book, quantity }];
-      const total = items.reduce((sum, i) => sum + i.book.price * i.quantity, 0);
+
+      // price vem como string do backend — converte para number
+      const total = items.reduce((sum, i) => sum + Number(i.book.price) * i.quantity, 0);
       return { items, total };
     });
   }
 
-  function handleRemoveFromCart(bookId: string) {
+  function handleRemoveFromCart(bookId: number) {
     setCart(prev => {
       const items = prev.items.filter(i => i.book.id !== bookId);
-      const total = items.reduce((sum, i) => sum + i.book.price * i.quantity, 0);
+      const total = items.reduce((sum, i) => sum + Number(i.book.price) * i.quantity, 0);
       return { items, total };
     });
   }
@@ -41,14 +64,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <CartContext.Provider
-      value={{ cart, handleAddToCart, handleRemoveFromCart, handleClearCart }}
-    >
+    <CartContext.Provider value={{ cart, handleAddToCart, handleRemoveFromCart, handleClearCart }}>
       {children}
     </CartContext.Provider>
   );
 }
 
+// ← estava faltando — causa o erro "CartProvider is not a function/hook"
 export function useCart() {
   return useContext(CartContext);
 }
