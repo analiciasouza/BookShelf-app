@@ -93,20 +93,43 @@ function SaveAddressAs() {
     <View style={styles.saveAsBlock}>
       <Text style={styles.saveAsLabel}>Salvar Endereço Como</Text>
       <View style={styles.saveAsChips} accessibilityRole="radiogroup">
-        <AButton 
-          label="Casa" 
-          variant={selected === 'home' ? 'primary' : 'secondary'} 
-          style={[styles.chip, { minHeight: 40 }]} 
+        <AIconButton
+          label="Selecionar endereço tipo Casa"
+          hint={selected === 'home' ? 'Já selecionado' : 'Toque duas vezes para selecionar'}
+          style={[
+            styles.chip, 
+            { minHeight: 40, paddingHorizontal: 16, borderRadius: 20 },
+            selected === 'home' ? { backgroundColor: '#5C3D99' } : { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#5C3D99' }
+          ]}
           onPress={() => setSelected('home')}
-          accessibilityState={{ checked: selected === 'home' }}
-        />
-        <AButton 
-          label="Trabalho" 
-          variant={selected === 'offices' ? 'primary' : 'secondary'} 
-          style={[styles.chip, { minHeight: 40, marginLeft: 8 }]} 
+          accessibilityState={{ selected: selected === 'home' }}>
+          <Text style={{ 
+            fontSize: 14, 
+            fontWeight: '600', 
+            color: selected === 'home' ? '#FFF' : '#5C3D99' 
+          }}>
+            Casa
+          </Text>
+        </AIconButton>
+
+        <AIconButton
+          label="Selecionar endereço tipo Trabalho"
+          hint={selected === 'offices' ? 'Já selecionado' : 'Toque duas vezes para selecionar'}
+          style={[
+            styles.chip, 
+            { minHeight: 40, paddingHorizontal: 16, borderRadius: 20, marginLeft: 8 },
+            selected === 'offices' ? { backgroundColor: '#5C3D99' } : { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#5C3D99' }
+          ]}
           onPress={() => setSelected('offices')}
-          accessibilityState={{ checked: selected === 'offices' }}
-        />
+          accessibilityState={{ selected: selected === 'offices' }}>
+          <Text style={{ 
+            fontSize: 14, 
+            fontWeight: '600', 
+            color: selected === 'offices' ? '#FFF' : '#5C3D99' 
+          }}>
+            Trabalho
+          </Text>
+        </AIconButton>
       </View>
     </View>
   );
