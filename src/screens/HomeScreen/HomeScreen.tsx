@@ -4,16 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useBooks } from '../../hooks/useBooks';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/CartContext'; // ← useCart, não CartProvider
 import { Book } from '../../@types/type';
 import { styles } from './HomeScreen.styles';
-
-// Componentes Acessíveis
 import { AHeader, AIconButton, AImage, ACard, AInput } from '../../components/accessible';
 
 const PURPLE = '#5C3D99';
-const CREAM = '#FAF8F4';
-const INK = '#1A1035';
+const CREAM  = '#FAF8F4';
+const INK    = '#1A1035';
 
 interface Props {
   navigation: any;
@@ -21,7 +19,7 @@ interface Props {
 
 export function HomeScreen({ navigation }: Props) {
   const { books, isLoading } = useBooks();
-  const { cart } = useCart();
+  const { cart } = useCart(); // ← era CartProvider() — corrigido
   const [searchQuery, setSearchQuery] = useState('');
 
   const cartCount = cart.items.reduce((sum, i) => sum + i.quantity, 0);
@@ -36,36 +34,62 @@ export function HomeScreen({ navigation }: Props) {
   const featured = books[0];
   const rest = books.slice(1);
 
+  // price vem como string do Django — helper para exibição
+  function formatPrice(price: string | number) {
+    return Number(price).toFixed(2);
+  }
+
   function renderBook({ item }: { item: Book }) {
+    // coverImage é o alias mapeado pelo bookService (cover_image → coverImage)
+    const imageUri = item.coverImage ?? item.cover_image;
+
     return (
       <ACard
         style={styles.card}
-        label={`Livro: ${item.title}. Autor: ${item.author}. Preço: R$ ${item.price.toFixed(2)}.`}
+        label={`Livro: ${item.title}. Autor: ${item.author}. Preço: R$ ${formatPrice(item.price)}.`}
         hint="Toque duas vezes para ler os detalhes deste livro"
         onPress={() => navigation.navigate('BookDetail', { book: item })}
       >
         <View style={styles.coverWrapper}>
-          <AImage source={{ uri: item.coverImage }} style={styles.cover} resizeMode="cover" alt="" decorative />
+          <AImage
+            source={{ uri: imageUri ?? undefined }}
+            style={styles.cover}
+            resizeMode="cover"
+            alt=""
+            decorative
+          />
           <View style={styles.priceTag} importantForAccessibility="no-hide-descendants">
-            <Text style={styles.priceTagText}>R${item.price.toFixed(2)}</Text>
+            <Text style={styles.priceTagText}>R${formatPrice(item.price)}</Text>
           </View>
         </View>
-        <Text style={styles.bookTitle} numberOfLines={2} importantForAccessibility="no-hide-descendants">{item.title}</Text>
-        <Text style={styles.bookAuthor} numberOfLines={1} importantForAccessibility="no-hide-descendants">{item.author}</Text>
+        <Text style={styles.bookTitle} numberOfLines={2} importantForAccessibility="no-hide-descendants">
+          {item.title}
+        </Text>
+        <Text style={styles.bookAuthor} numberOfLines={1} importantForAccessibility="no-hide-descendants">
+          {item.author}
+        </Text>
       </ACard>
     );
   }
 
   function FeaturedCard() {
     if (!featured) return null;
+    const imageUri = featured.coverImage ?? featured.cover_image;
+
     return (
       <ACard
         style={styles.featured}
-        label={`Livro em Destaque: ${featured.title}. Autor: ${featured.author}. Preço: R$ ${featured.price.toFixed(2)}.`}
+        label={`Livro em Destaque: ${featured.title}. Autor: ${featured.author}. Preço: R$ ${formatPrice(featured.price)}.`}
         hint="Toque duas vezes para ler os detalhes deste destaque"
         onPress={() => navigation.navigate('BookDetail', { book: featured })}
       >
-        <AImage source={{ uri: featured.coverImage }} style={styles.featuredBg} resizeMode="cover" alt="" decorative />
+        <AImage
+          source={{ uri: imageUri ?? undefined }}
+          style={styles.featuredBg}
+          resizeMode="cover"
+          alt=""
+          decorative
+        />
         <View style={styles.featuredOverlay} />
         <View style={styles.featuredContent} importantForAccessibility="no-hide-descendants">
           <View style={styles.featuredBadge}>
@@ -74,7 +98,7 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.featuredTitle} numberOfLines={2}>{featured.title}</Text>
           <Text style={styles.featuredAuthor}>{featured.author}</Text>
           <View style={styles.featuredFooter}>
-            <Text style={styles.featuredPrice}>R${featured.price.toFixed(2)}</Text>
+            <Text style={styles.featuredPrice}>R${formatPrice(featured.price)}</Text>
             <View style={styles.featuredBtn}>
               <Text style={styles.featuredBtnText}>Ver livro</Text>
             </View>
@@ -98,7 +122,7 @@ export function HomeScreen({ navigation }: Props) {
           style={styles.cartButton}
           onPress={() => navigation.navigate('Cart')}
           label="Ir para o carrinho de compras"
-          hint={`${cartCount} itens na sacola`}
+          hint={cartCount > 0 ? `${cartCount} ite${cartCount > 1 ? 'ns' : 'm'} na sacola` : 'Sacola vazia'}
         >
           <Ionicons name="bag-outline" size={22} color={INK} />
           {cartCount > 0 && (
@@ -139,7 +163,6 @@ export function HomeScreen({ navigation }: Props) {
           </View>
         )}
 
-        {/* Grid */}
         <View style={styles.grid}>
           {(searchQuery ? filtered : rest).map((item, index) => (
             <View key={item.id} style={index % 2 === 0 ? styles.gridLeft : styles.gridRight}>
@@ -151,12 +174,23 @@ export function HomeScreen({ navigation }: Props) {
 
       {/* Tab Bar */}
       <View style={styles.tabBar} accessibilityRole="tablist">
-        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Home')} label="Home, aba 1 de 3" accessibilityState={{ selected: true }}>
+        <AIconButton
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Home')}
+          label="Home, aba 1 de 3"
+          accessibilityState={{ selected: true }}
+        >
+          <View style={styles.tabActiveIndicator} />
           <Ionicons name="home" size={22} color={PURPLE} />
           <Text style={styles.tabLabelActive}>Home</Text>
         </AIconButton>
-        
-        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Cart')} label="Carrinho, aba 2 de 3" accessibilityState={{ selected: false }}>
+
+        <AIconButton
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Cart')}
+          label="Carrinho, aba 2 de 3"
+          accessibilityState={{ selected: false }}
+        >
           <View>
             <Ionicons name="bag-outline" size={22} color="#BBBBBB" />
             {cartCount > 0 && (
@@ -167,8 +201,13 @@ export function HomeScreen({ navigation }: Props) {
           </View>
           <Text style={styles.tabLabel}>Carrinho</Text>
         </AIconButton>
-        
-        <AIconButton style={styles.tabItem} onPress={() => navigation.navigate('Profile')} label="Perfil, aba 3 de 3" accessibilityState={{ selected: false }}>
+
+        <AIconButton
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Profile')}
+          label="Perfil, aba 3 de 3"
+          accessibilityState={{ selected: false }}
+        >
           <Ionicons name="person-outline" size={22} color="#BBBBBB" />
           <Text style={styles.tabLabel}>Perfil</Text>
         </AIconButton>

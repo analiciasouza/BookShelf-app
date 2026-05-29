@@ -30,7 +30,6 @@ export function OrderStatusScreen({ navigation, route }: Props) {
           <Text style={styles.thankEmoji}>Obrigada 🧡</Text>
           <AHeader level={1} style={styles.thankTitle}>Seu pedido foi realizado com sucesso!</AHeader>
           <Text style={styles.orderId}>Pedido #{orderId}</Text>
-          
           <AButton label="Cancelar pedido" variant="ghost" style={{ marginTop: 8 }} onPress={handleCancel} />
         </View>
 
@@ -38,13 +37,21 @@ export function OrderStatusScreen({ navigation, route }: Props) {
           <AHeader level={2} style={styles.cardTitle}>Detalhes do Pedido</AHeader>
           <View style={styles.divider} />
 
-          {items.map(({ book, quantity }) => (
-            <View key={book.id} style={styles.itemRow} accessible accessibilityLabel={`${quantity} unidades de ${book.title}. Valor total desse item: R$ ${(book.price * quantity).toFixed(2)}`}>
-              <Text style={styles.itemQty}>{quantity}x</Text>
-              <Text style={styles.itemName} numberOfLines={1}>{book.title}</Text>
-              <Text style={styles.itemPrice}>R${(book.price * quantity).toFixed(2)}</Text>
-            </View>
-          ))}
+          {items.map(({ book, quantity }) => {
+            const itemTotal = (Number(book.price) * quantity).toFixed(2); // ← Number() corrigido
+            return (
+              <View
+                key={book.id}
+                style={styles.itemRow}
+                accessible
+                accessibilityLabel={`${quantity} unidades de ${book.title}. Valor: R$ ${itemTotal}`}
+              >
+                <Text style={styles.itemQty}>{quantity}x</Text>
+                <Text style={styles.itemName} numberOfLines={1}>{book.title}</Text>
+                <Text style={styles.itemPrice}>R${itemTotal}</Text>
+              </View>
+            );
+          })}
 
           <View style={styles.divider} />
           <Text style={{ color: '#1A1035', marginVertical: 4 }}>Subtotal: R$ {total.toFixed(2)}</Text>
@@ -54,7 +61,11 @@ export function OrderStatusScreen({ navigation, route }: Props) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <AButton label="Prosseguir e Finalizar" variant="primary" onPress={() => navigation.navigate('OrderReceived', { orderId })} />
+        <AButton
+          label="Prosseguir e Finalizar"
+          variant="primary"
+          onPress={() => navigation.navigate('OrderReceived', { orderId })}
+        />
       </View>
     </SafeAreaView>
   );
