@@ -1,5 +1,5 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -12,30 +12,55 @@ export const api = axios.create({
 });
 
 
-api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await SecureStore.getItemAsync('access_token');
+      
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Erro ao buscar token no SecureStore', error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const original = error.config;
+    const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
+   
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
       try {
-        const refresh = await AsyncStorage.getItem('refresh_token');
-        const { data } = await axios.post(`${BASE_URL}auth/refresh/`, { refresh });
-        await AsyncStorage.setItem('access_token', data.access);
-        original.headers.Authorization = `Bearer ${data.access}`;
-        return api(original);
-      } catch {
-        await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+        const refreshToken = await SecureStore.getItemAsync('refresh_token');
+        
+        if (refreshToken) {
+          
+          const response = await api.post('/auth/refresh/', { refresh: refreshToken });
+          const newAccessToken = response.data.access;
+          
+         
+          await SecureStore.setItemAsync('access_token', newAccessToken);
+          
+        
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          }
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        await SecureStore.deleteItemAsync('access_token');
+        await SecureStore.deleteItemAsync('refresh_token');
+        return Promise.reject(refreshError);
       }
     }
 
