@@ -14,10 +14,10 @@ export type Book = {
   description: string | null;
   genre: BookGenre;
   pages: number | null;
-  price: string;          // DecimalField vem como string do Django
+  price: string;         
   stock_quantity: number;
   status: BookStatus;
-  cover_image: string | null;   // campo original da API
+  cover_image: string | null;   
   coverImage?: string | null;   // alias mapeado pelo bookService (cover_image → coverImage)
   rating: string;
   created_at: string;
@@ -82,7 +82,6 @@ export type Order = {
   status: OrderStatus;
   status_display: string;
   total: string;
-  shipping_fee: string;
   shipping_address: Address;
   payment_method: number;
   items: OrderItem[];
